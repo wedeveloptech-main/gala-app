@@ -458,7 +458,7 @@ class _HomePageState extends State<HomePage> {
                                                           ),
                                                         ),
                                                         height: 150.h,
-                                                        width: 250.w,
+                                                        width: 200.w,
                                                         child: Align(
                                                           alignment: Alignment.topRight,
                                                           child: GestureDetector(
@@ -491,71 +491,72 @@ class _HomePageState extends State<HomePage> {
                                                                           ),
                                                                         ),
                                                                         SizedBox(height: 16.h,),
-                                                                        Column(
-                                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                                          mainAxisSize: MainAxisSize.min,
-                                                                          children: <Widget>[
-                                                                            SizedBox(height: 5.h,),
-                                                                            TextButton(
-                                                                              onPressed: (){
-                                                                                showModalBottomSheet(
-                                                                                  backgroundColor: Colors.transparent,
-                                                                                  isScrollControlled: true,
-                                                                                  context: context,
-                                                                                  builder: (BuildContext context) {
-                                                                                    return Container(
-                                                                                      height: MediaQuery.of(context).size.height * 0.7,
-                                                                                      decoration: BoxDecoration(
-                                                                                        color: Colors.white,
-                                                                                        borderRadius:  BorderRadius.only(
-                                                                                          topLeft: Radius.circular(25.r),
-                                                                                          topRight: Radius.circular(25.r),
+                                                                        Padding(
+                                                                          padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                                                          child: Column(
+                                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                                            mainAxisSize: MainAxisSize.min,
+                                                                            children: <Widget>[
+                                                                              SizedBox(height: 5.h,),
+                                                                              TextButton(
+                                                                                onPressed: (){
+                                                                                  showModalBottomSheet(
+                                                                                    backgroundColor: Colors.transparent,
+                                                                                    isScrollControlled: true,
+                                                                                    context: context,
+                                                                                    builder: (BuildContext context) {
+                                                                                      return Container(
+                                                                                        height: MediaQuery.of(context).size.height * 0.7,
+                                                                                        decoration: BoxDecoration(
+                                                                                          color: Colors.white,
+                                                                                          borderRadius:  BorderRadius.only(
+                                                                                            topLeft: Radius.circular(25.r),
+                                                                                            topRight: Radius.circular(25.r),
+                                                                                          ),
                                                                                         ),
-                                                                                      ),
-                                                                                      child: Center(
-                                                                                        child: MenuList2(
-                                                                                          prod: snapshot.data!.data[index].prodId.toString(),
+                                                                                        child: Center(
+                                                                                          child: MenuList2(
+                                                                                            prod: snapshot.data!.data[index].prodId.toString(),
+                                                                                          ),
                                                                                         ),
-                                                                                      ),
-                                                                                    );
-                                                                                  },
-                                                                                );
-                                                                              },
-                                                                              child: Row(
-                                                                                children: [
-                                                                                  SizedBox(width: 10.w,),
-                                                                                  Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
-                                                                                  SizedBox(width: 15.w,),
-                                                                                  Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                                ],
+                                                                                      );
+                                                                                    },
+                                                                                  );
+                                                                                },
+                                                                                child: Row(
+                                                                                  children: [
+                                                                                    Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
+                                                                                    SizedBox(width: 15.w,),
+                                                                                    Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                                  ],
+                                                                                ),
                                                                               ),
-                                                                            ),
-                                                                            Divider(height: 5.h, color: Colors.black45,),
-                                                                            TextButton(
-                                                                              onPressed: () async{
-                                                                                final urlImage = snapshot.data!.data[index].thumb.toString();
-                                                                                final url = Uri.parse(urlImage);
-                                                                                final response = await http.get(url);
-                                                                                final bytes = response.bodyBytes;
+                                                                              Divider(height: 5.h, color: kwhite2,),
+                                                                              TextButton(
+                                                                                onPressed: () async{
+                                                                                  final urlImage = snapshot.data!.data[index].thumb.toString();
+                                                                                  final url = Uri.parse(urlImage);
+                                                                                  final response = await http.get(url);
+                                                                                  final bytes = response.bodyBytes;
 
-                                                                                final temp = await getTemporaryDirectory();
-                                                                                final path = '${temp.path}/image.jpg';
-                                                                                File(path).writeAsBytesSync(bytes);
+                                                                                  final temp = await getTemporaryDirectory();
+                                                                                  final path = '${temp.path}/image.jpg';
+                                                                                  File(path).writeAsBytesSync(bytes);
 
-                                                                                await Share.shareFiles([path], text: snapshot.data!.data[index].prodName);
-                                                                                //await Share.share([path], subject: snapshot.data!.data[index].prodName);
-                                                                              },
-                                                                              child: Row(
-                                                                                children: [
-                                                                                  SizedBox(width: 10.w,),
-                                                                                  Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
-                                                                                  SizedBox(width: 15.w,),
-                                                                                  Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                                ],
+                                                                                  await Share.shareFiles([path], text: snapshot.data!.data[index].prodName);
+                                                                                  //await Share.share([path], subject: snapshot.data!.data[index].prodName);
+                                                                                },
+                                                                                child: Row(
+                                                                                  children: [
+                                                                                    Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
+                                                                                    SizedBox(width: 15.w,),
+                                                                                    Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                                  ],
+                                                                                ),
                                                                               ),
-                                                                            ),
-                                                                            SizedBox(height: 20.h,),
-                                                                          ],
+                                                                              SizedBox(height: 20.h,),
+                                                                            ],
+                                                                          ),
                                                                         ),
                                                                       ],
                                                                     ),
@@ -599,7 +600,7 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 20.h,),
+                      SizedBox(height: 18.h,),
                       Container(
                         width: double.infinity,
                         child: Column(
@@ -648,7 +649,7 @@ class _HomePageState extends State<HomePage> {
 
                                     // Calculate the spacing based on the screen width
                                     final spacing = screenWidth * 0.02;
-                                    final childAspectRatio = screenHeight > 800 ? 1.06 : 1.18;
+                                    final childAspectRatio = screenHeight > 800 ? 1.06 : 1.19;
                                     return
                                       GridView.builder(
                                         padding: EdgeInsets.zero,
@@ -778,71 +779,72 @@ class _HomePageState extends State<HomePage> {
                                                                       ),
                                                                     ),
                                                                     SizedBox(height: 16.h,),
-                                                                    Column(
-                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                      mainAxisSize: MainAxisSize.min,
-                                                                      children: <Widget>[
-                                                                        SizedBox(height: 5.h,),
-                                                                        TextButton(
-                                                                          onPressed: (){
-                                                                            showModalBottomSheet(
-                                                                              backgroundColor: Colors.transparent,
-                                                                              isScrollControlled: true,
-                                                                              context: context,
-                                                                              builder: (BuildContext context) {
-                                                                                return Container(
-                                                                                  height: MediaQuery.of(context).size.height * 0.7,
-                                                                                  decoration: BoxDecoration(
-                                                                                    color: Colors.white,
-                                                                                    borderRadius:  BorderRadius.only(
-                                                                                      topLeft: Radius.circular(25.r),
-                                                                                      topRight: Radius.circular(25.r),
+                                                                    Padding(
+                                                                      padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                                                      child: Column(
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        mainAxisSize: MainAxisSize.min,
+                                                                        children: <Widget>[
+                                                                          SizedBox(height: 5.h,),
+                                                                          TextButton(
+                                                                            onPressed: (){
+                                                                              showModalBottomSheet(
+                                                                                backgroundColor: Colors.transparent,
+                                                                                isScrollControlled: true,
+                                                                                context: context,
+                                                                                builder: (BuildContext context) {
+                                                                                  return Container(
+                                                                                    height: MediaQuery.of(context).size.height * 0.7,
+                                                                                    decoration: BoxDecoration(
+                                                                                      color: Colors.white,
+                                                                                      borderRadius:  BorderRadius.only(
+                                                                                        topLeft: Radius.circular(25.r),
+                                                                                        topRight: Radius.circular(25.r),
+                                                                                      ),
                                                                                     ),
-                                                                                  ),
-                                                                                  child: Center(
-                                                                                    child: MenuList2(
-                                                                                      prod: snapshot.data!.data[index].prodId.toString(),
+                                                                                    child: Center(
+                                                                                      child: MenuList2(
+                                                                                        prod: snapshot.data!.data[index].prodId.toString(),
+                                                                                      ),
                                                                                     ),
-                                                                                  ),
-                                                                                );
-                                                                              },
-                                                                            );
-                                                                          },
-                                                                          child: Row(
-                                                                            children: [
-                                                                              SizedBox(width: 10.w,),
-                                                                              Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
-                                                                              SizedBox(width: 15.w,),
-                                                                              Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                            ],
+                                                                                  );
+                                                                                },
+                                                                              );
+                                                                            },
+                                                                            child: Row(
+                                                                              children: [
+                                                                                Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
+                                                                                SizedBox(width: 15.w,),
+                                                                                Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                              ],
+                                                                            ),
                                                                           ),
-                                                                        ),
-                                                                        Divider(height: 5.h, color: Colors.black45,),
-                                                                        TextButton(
-                                                                          onPressed: () async{
-                                                                            final urlImage = snapshot.data!.data[index].thumb.toString();
-                                                                            final url = Uri.parse(urlImage);
-                                                                            final response = await http.get(url);
-                                                                            final bytes = response.bodyBytes;
+                                                                          Divider(height: 5.h, color: kwhite2,),
+                                                                          TextButton(
+                                                                            onPressed: () async{
+                                                                              final urlImage = snapshot.data!.data[index].thumb.toString();
+                                                                              final url = Uri.parse(urlImage);
+                                                                              final response = await http.get(url);
+                                                                              final bytes = response.bodyBytes;
 
-                                                                            final temp = await getTemporaryDirectory();
-                                                                            final path = '${temp.path}/image.jpg';
-                                                                            File(path).writeAsBytesSync(bytes);
+                                                                              final temp = await getTemporaryDirectory();
+                                                                              final path = '${temp.path}/image.jpg';
+                                                                              File(path).writeAsBytesSync(bytes);
 
-                                                                            await Share.shareFiles([path], text: snapshot.data!.data[index].prodName);
-                                                                            //await Share.share([path], subject: snapshot.data!.data[index].prodName);
-                                                                          },
-                                                                          child: Row(
-                                                                            children: [
-                                                                              SizedBox(width: 10.w,),
-                                                                              Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
-                                                                              SizedBox(width: 15.w,),
-                                                                              Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                            ],
+                                                                              await Share.shareFiles([path], text: snapshot.data!.data[index].prodName);
+                                                                              //await Share.share([path], subject: snapshot.data!.data[index].prodName);
+                                                                            },
+                                                                            child: Row(
+                                                                              children: [
+                                                                                Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
+                                                                                SizedBox(width: 15.w,),
+                                                                                Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                              ],
+                                                                            ),
                                                                           ),
-                                                                        ),
-                                                                        SizedBox(height: 20.h,),
-                                                                      ],
+                                                                          SizedBox(height: 20.h,),
+                                                                        ],
+                                                                      ),
                                                                     ),
                                                                   ],
                                                                 ),
@@ -1070,71 +1072,72 @@ class _HomePageState extends State<HomePage> {
                                                                                   ),
                                                                                 ),
                                                                                 SizedBox(height: 16.h,),
-                                                                                Column(
-                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                                  mainAxisSize: MainAxisSize.min,
-                                                                                  children: <Widget>[
-                                                                                    SizedBox(height: 5.h,),
-                                                                                    TextButton(
-                                                                                      onPressed: (){
-                                                                                        showModalBottomSheet(
-                                                                                          backgroundColor: Colors.transparent,
-                                                                                          isScrollControlled: true,
-                                                                                          context: context,
-                                                                                          builder: (BuildContext context) {
-                                                                                            return Container(
-                                                                                              height: MediaQuery.of(context).size.height * 0.7,
-                                                                                              decoration: BoxDecoration(
-                                                                                                color: Colors.white,
-                                                                                                borderRadius:  BorderRadius.only(
-                                                                                                  topLeft: Radius.circular(25.r),
-                                                                                                  topRight: Radius.circular(25.r),
+                                                                                Padding(
+                                                                                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                                                                  child: Column(
+                                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                    mainAxisSize: MainAxisSize.min,
+                                                                                    children: <Widget>[
+                                                                                      SizedBox(height: 5.h,),
+                                                                                      TextButton(
+                                                                                        onPressed: (){
+                                                                                          showModalBottomSheet(
+                                                                                            backgroundColor: Colors.transparent,
+                                                                                            isScrollControlled: true,
+                                                                                            context: context,
+                                                                                            builder: (BuildContext context) {
+                                                                                              return Container(
+                                                                                                height: MediaQuery.of(context).size.height * 0.7,
+                                                                                                decoration: BoxDecoration(
+                                                                                                  color: Colors.white,
+                                                                                                  borderRadius:  BorderRadius.only(
+                                                                                                    topLeft: Radius.circular(25.r),
+                                                                                                    topRight: Radius.circular(25.r),
+                                                                                                  ),
                                                                                                 ),
-                                                                                              ),
-                                                                                              child: Center(
-                                                                                                child: MenuList2(
-                                                                                                  prod: item['prod_id'].toString(),
+                                                                                                child: Center(
+                                                                                                  child: MenuList2(
+                                                                                                    prod: item['prod_id'].toString(),
+                                                                                                  ),
                                                                                                 ),
-                                                                                              ),
-                                                                                            );
-                                                                                          },
-                                                                                        );
-                                                                                      },
-                                                                                      child: Row(
-                                                                                        children: [
-                                                                                          SizedBox(width: 10.w,),
-                                                                                          Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
-                                                                                          SizedBox(width: 15.w,),
-                                                                                          Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                                        ],
+                                                                                              );
+                                                                                            },
+                                                                                          );
+                                                                                        },
+                                                                                        child: Row(
+                                                                                          children: [
+                                                                                            Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
+                                                                                            SizedBox(width: 15.w,),
+                                                                                            Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                                          ],
+                                                                                        ),
                                                                                       ),
-                                                                                    ),
-                                                                                    Divider(height: 5.h, color: Colors.black45,),
-                                                                                    TextButton(
-                                                                                      onPressed: () async{
-                                                                                        final urlImage = item['thumb'].toString();
-                                                                                        final url = Uri.parse(urlImage);
-                                                                                        final response = await http.get(url);
-                                                                                        final bytes = response.bodyBytes;
+                                                                                      Divider(height: 5.h, color: kwhite2,),
+                                                                                      TextButton(
+                                                                                        onPressed: () async{
+                                                                                          final urlImage = item['thumb'].toString();
+                                                                                          final url = Uri.parse(urlImage);
+                                                                                          final response = await http.get(url);
+                                                                                          final bytes = response.bodyBytes;
 
-                                                                                        final temp = await getTemporaryDirectory();
-                                                                                        final path = '${temp.path}/image.jpg';
-                                                                                        File(path).writeAsBytesSync(bytes);
+                                                                                          final temp = await getTemporaryDirectory();
+                                                                                          final path = '${temp.path}/image.jpg';
+                                                                                          File(path).writeAsBytesSync(bytes);
 
-                                                                                        await Share.shareFiles([path], text: item['prod_name']);
-                                                                                        //await Share.share([path], subject: snapshot.data!.data[index].prodName);
-                                                                                      },
-                                                                                      child: Row(
-                                                                                        children: [
-                                                                                          SizedBox(width: 10.w,),
-                                                                                          Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
-                                                                                          SizedBox(width: 15.w,),
-                                                                                          Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                                        ],
+                                                                                          await Share.shareFiles([path], text: item['prod_name']);
+                                                                                          //await Share.share([path], subject: snapshot.data!.data[index].prodName);
+                                                                                        },
+                                                                                        child: Row(
+                                                                                          children: [
+                                                                                            Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
+                                                                                            SizedBox(width: 15.w,),
+                                                                                            Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                                          ],
+                                                                                        ),
                                                                                       ),
-                                                                                    ),
-                                                                                    SizedBox(height: 20.h,),
-                                                                                  ],
+                                                                                      SizedBox(height: 20.h,),
+                                                                                    ],
+                                                                                  ),
                                                                                 ),
                                                                               ],
                                                                             ),

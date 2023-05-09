@@ -260,6 +260,7 @@ class _SearchPageState extends State<SearchPage> {
                                 builder: (context) =>
                                     SearchDataList(
                                       nameHolder: name.text,
+
                                     ),
                               ),
                             );
@@ -279,7 +280,10 @@ class _SearchPageState extends State<SearchPage> {
                                           builder: (context) =>
                                               SearchDataList(
                                                 nameHolder: name.text,))
-                                  );
+                                  ).then((value) {
+                                    // This code will run after the SearchDataList page is popped off the navigation stack
+                                    name.clear();
+                                  });
                                 }
                               },
                               icon: Icon(Icons.search, size: 30.r, color: kblue,)),

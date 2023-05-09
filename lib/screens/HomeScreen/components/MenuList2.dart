@@ -119,12 +119,16 @@ class _MenuList2State extends State<MenuList2> {
                   children: [
                     Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
                     SizedBox(width: 10.w,),
-                    Text('New Menu', style: TextStyle(color: kblue,fontSize: 20.sp),)
+                    Text('New Menu', style: TextStyle(color: kblue,fontSize: 20.sp),),
+                    SizedBox(width: 10.w,),
                   ],
                 ),
               ),
               SizedBox(height: 5.h,),
-              Divider(color: kblack),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Divider(color: kwhite2),
+              ),
               Expanded(
                 child: Container(//screen decoration
                   //alignment: Alignment.center,

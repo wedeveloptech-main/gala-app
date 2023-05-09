@@ -328,7 +328,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 ),
                                               ),
                                               SizedBox(height: 10.h,),
-                                              Divider(height: 5.h, color: Colors.black45,),
+                                              Divider(height: 5.h, color: kwhite2,),
                                               SizedBox(height: 10.h,),
                                               Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -357,7 +357,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ],
                             ),),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: Colors.black45,),
+                          Divider(height: 5.h, color: kwhite2,),
                           SizedBox(height: 2.h,),
                           /*TextButton(
                         onPressed: () {},
@@ -371,7 +371,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       SizedBox(height: 2.h,),
-                      Divider(height: 5.h, color: Colors.black45,),
+                      Divider(height: 5.h, color: kwhite2,),
                       SizedBox(height: 2.h,),*/
                           TextButton(
                             onPressed: () async {
@@ -415,7 +415,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: Colors.black45,),
+                          Divider(height: 5.h, color: kwhite2,),
                           SizedBox(height: 2.h,),
                           TextButton(
                             onPressed: () async {
@@ -458,7 +458,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: Colors.black45,),
+                          Divider(height: 5.h, color: kwhite2,),
                           SizedBox(height: 2.h,),
                           TextButton(
                             onPressed: () async {
@@ -482,7 +482,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: Colors.black45,),
+                          Divider(height: 5.h, color: kwhite2,),
                           SizedBox(height: 2.h,),
                           TextButton(
                             onPressed: () async{
@@ -524,7 +524,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: Colors.black45,),
+                          Divider(height: 5.h, color: kwhite2,),
                         ],
                       ),
                       Column(

@@ -657,129 +657,130 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
                                                       topRight: Radius.circular(25.r),
                                                     ),
                                                   ),
-                                                  child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: <Widget>[
-                                                      SizedBox(height: 16.h,),
-                                                      Center(
-                                                        child: Container(
-                                                          decoration: BoxDecoration(
-                                                              borderRadius: BorderRadius.circular(20.r),
-                                                              color: kblue
+                                                  child: Padding(
+                                                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                                    child: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: <Widget>[
+                                                        SizedBox(height: 16.h,),
+                                                        Center(
+                                                          child: Container(
+                                                            decoration: BoxDecoration(
+                                                                borderRadius: BorderRadius.circular(20.r),
+                                                                color: kblue
+                                                            ),
+                                                            width: 100.w,
+                                                            height: 5.h,
                                                           ),
-                                                          width: 100.w,
-                                                          height: 5.h,
                                                         ),
-                                                      ),
-                                                      SizedBox(height: 16.h,),
-                                                      Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: <Widget>[
-                                                          TextButton(
-                                                            onPressed: () async{
-                                                              final urlImage = item.thumb.toString();
-                                                              final url = Uri.parse(urlImage);
-                                                              final response = await http.get(url);
-                                                              final bytes = response.bodyBytes;
+                                                        SizedBox(height: 16.h,),
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: <Widget>[
+                                                            TextButton(
+                                                              onPressed: () async{
+                                                                final urlImage = item.thumb.toString();
+                                                                final url = Uri.parse(urlImage);
+                                                                final response = await http.get(url);
+                                                                final bytes = response.bodyBytes;
 
-                                                              final temp = await getTemporaryDirectory();
-                                                              final path = '${temp.path}/image.jpg';
-                                                              File(path).writeAsBytesSync(bytes);
+                                                                final temp = await getTemporaryDirectory();
+                                                                final path = '${temp.path}/image.jpg';
+                                                                File(path).writeAsBytesSync(bytes);
 
-                                                              await Share.shareFiles([path], text: item.prodName);
-                                                              //await Share.share([path], subject: snapshot.data!.data[index].prodName);
+                                                                await Share.shareFiles([path], text: item.prodName);
+                                                                //await Share.share([path], subject: snapshot.data!.data[index].prodName);
 
-                                                            },
-                                                            child: Row(
-                                                              children: [
-                                                                SizedBox(width: 10.w,),
-                                                                Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
-                                                                SizedBox(width: 15.w,),
-                                                                Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                              ],
+                                                              },
+                                                              child: Row(
+                                                                children: [
+                                                                  Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
+                                                                  SizedBox(width: 15.w,),
+                                                                  Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                ],
+                                                              ),
                                                             ),
-                                                          ),
-                                                          Divider(height: 5.h, color: Colors.black45,),
-                                                          TextButton(
-                                                            onPressed: () async {
-                                                              Navigator.of(context)
-                                                                  .pop();
-                                                              setState(() {
-                                                                //fetchDeleteMenu(widget.product);
-                                                                Fluttertoast.showToast(
-                                                                  msg: "Item Removed from Menu Successfully!", // your toast message
-                                                                  toastLength: Toast.LENGTH_SHORT, // duration of the toast
-                                                                  gravity: ToastGravity.BOTTOM, // toast gravity
-                                                                  backgroundColor: Colors.black54, // background color of the toast
-                                                                  textColor: Colors.white, // text color of the toast
-                                                                );
-                                                              });
-                                                              String ProdId = item.prodId;
-                                                              int index = snapshot.data!.data.indexWhere((menu) =>
-                                                                  menu.items.any((item) => item.prodId == ProdId));
-                                                              if (index != -1) {
-                                                                int itemIndex = snapshot.data!.data[index].items.indexWhere((item) =>
-                                                                item.prodId ==
-                                                                    ProdId);
-                                                                if (itemIndex !=
-                                                                    -1) {
-                                                                  snapshot.data!
-                                                                      .data[index]
-                                                                      .items
-                                                                      .removeAt(
-                                                                      itemIndex);
-                                                                  if (snapshot.data!
-                                                                      .data[index]
-                                                                      .items
-                                                                      .isEmpty) {
-                                                                    // If no remaining items, delete cat_id and name
-                                                                    snapshot.data!
-                                                                        .data[index]
-                                                                        .ctgId =
-                                                                    ''; // set cat_id to empty
-                                                                    snapshot.data!
-                                                                        .data[index]
-                                                                        .name =
-                                                                    ''; // set name to empty
-                                                                  }
-                                                                  await fetchRemoveMenuData(
-                                                                      widget
-                                                                          .product,
+                                                            Divider(height: 5.h, color: kwhite2,),
+                                                            TextButton(
+                                                              onPressed: () async {
+                                                                Navigator.of(context)
+                                                                    .pop();
+                                                                setState(() {
+                                                                  //fetchDeleteMenu(widget.product);
+                                                                  Fluttertoast.showToast(
+                                                                    msg: "Item Removed from Menu Successfully!", // your toast message
+                                                                    toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                                                                    gravity: ToastGravity.BOTTOM, // toast gravity
+                                                                    backgroundColor: Colors.black54, // background color of the toast
+                                                                    textColor: Colors.white, // text color of the toast
+                                                                  );
+                                                                });
+                                                                String ProdId = item.prodId;
+                                                                int index = snapshot.data!.data.indexWhere((menu) =>
+                                                                    menu.items.any((item) => item.prodId == ProdId));
+                                                                if (index != -1) {
+                                                                  int itemIndex = snapshot.data!.data[index].items.indexWhere((item) =>
+                                                                  item.prodId ==
                                                                       ProdId);
-                                                                  //await fetchDeleteMenu(widget.product);
-                                                                  await futureOpenMenuList; // update API data with updated item list
-                                                                  setState(() {
-                                                                    //fetchDeleteMenu(widget.product);
-                                                                    futureOpenMenuList;
-                                                                    Fluttertoast.showToast(
-                                                                      msg: "Menu Deleted Successfully!", // your toast message
-                                                                      toastLength: Toast.LENGTH_SHORT, // duration of the toast
-                                                                      gravity: ToastGravity.BOTTOM, // toast gravity
-                                                                      backgroundColor: Colors.black54, // background color of the toast
-                                                                      textColor: Colors.white, // text color of the toast
-                                                                    );
-                                                                  });
+                                                                  if (itemIndex !=
+                                                                      -1) {
+                                                                    snapshot.data!
+                                                                        .data[index]
+                                                                        .items
+                                                                        .removeAt(
+                                                                        itemIndex);
+                                                                    if (snapshot.data!
+                                                                        .data[index]
+                                                                        .items
+                                                                        .isEmpty) {
+                                                                      // If no remaining items, delete cat_id and name
+                                                                      snapshot.data!
+                                                                          .data[index]
+                                                                          .ctgId =
+                                                                      ''; // set cat_id to empty
+                                                                      snapshot.data!
+                                                                          .data[index]
+                                                                          .name =
+                                                                      ''; // set name to empty
+                                                                    }
+                                                                    await fetchRemoveMenuData(
+                                                                        widget
+                                                                            .product,
+                                                                        ProdId);
+                                                                    //await fetchDeleteMenu(widget.product);
+                                                                    await futureOpenMenuList; // update API data with updated item list
+                                                                    setState(() {
+                                                                      //fetchDeleteMenu(widget.product);
+                                                                      futureOpenMenuList;
+                                                                      Fluttertoast.showToast(
+                                                                        msg: "Menu Deleted Successfully!", // your toast message
+                                                                        toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                                                                        gravity: ToastGravity.BOTTOM, // toast gravity
+                                                                        backgroundColor: Colors.black54, // background color of the toast
+                                                                        textColor: Colors.white, // text color of the toast
+                                                                      );
+                                                                    });
+                                                                  }
                                                                 }
-                                                              }
-                                                              Navigator.of(context)
-                                                                  .pop();
-                                                              //fetchDeleteMenu(widget.product);
-                                                              futureOpenMenuList;
-                                                            },
-                                                            child: Row(
-                                                              children: [
-                                                                SizedBox(width: 10.w,),
-                                                                Image.asset("assets/images/Delete-Icon.png", height: 20.h, width: 20.w,),
-                                                                SizedBox(width: 15.w,),
-                                                                Text('Remove from the Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                              ],
+                                                                Navigator.of(context)
+                                                                    .pop();
+                                                                //fetchDeleteMenu(widget.product);
+                                                                futureOpenMenuList;
+                                                              },
+                                                              child: Row(
+                                                                children: [
+                                                                  Image.asset("assets/images/Delete-Icon.png", height: 20.h, width: 20.w,),
+                                                                  SizedBox(width: 15.w,),
+                                                                  Text('Remove from the Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                ],
+                                                              ),
                                                             ),
-                                                          ),
-                                                          SizedBox(height: 20.h,),
-                                                        ],
-                                                      ),
-                                                    ],
+                                                            SizedBox(height: 20.h,),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 )
                                             );
@@ -801,7 +802,10 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
                                         ),
                                       ),
                                     ),
-                                  Divider(),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                                    child: Divider(height: 5.h, color: kwhite2,),
+                                  ),
                                 ],
                               );
                             }

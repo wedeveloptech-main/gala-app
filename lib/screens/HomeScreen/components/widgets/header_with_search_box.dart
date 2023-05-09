@@ -139,7 +139,8 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                         return  Expanded(
                           child: Form(
                             key: _searchKey,
-                            child: /*TextFormField(
+                            child:
+                            /*TextFormField(
                               controller: name,
                               textCapitalization: TextCapitalization.words,
                               autocorrect: true,
@@ -212,7 +213,13 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                                             nameHolder: search_name.text,
                                           ),
                                     ),
-                                  );
+                                  ).then((value) {
+                                    // This code will run after the SearchDataList page is popped off the navigation stack
+                                    search_name.clear();
+                                    setState(() {
+                                      _showClearButton = false;
+                                    });
+                                  });
                                 }
                               },
                               decoration: InputDecoration(
@@ -258,7 +265,13 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                                               builder: (context) =>
                                                   SearchDataList(
                                                     nameHolder: search_name.text,))
-                                      );
+                                      ).then((value) {
+                                        // This code will run after the SearchDataList page is popped off the navigation stack
+                                        search_name.clear();
+                                        setState(() {
+                                          _showClearButton = false;
+                                        });
+                                      });
                                     }
                                   },
                                   icon: Icon(Icons.search, size: 25.r, color: kblue,),
