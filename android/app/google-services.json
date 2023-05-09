@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "531889683241",
+    "project_id": "deeplinks-b9f4a",
+    "storage_bucket": "deeplinks-b9f4a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:531889683241:android:e4852243f86d277f4c1538",
+        "android_client_info": {
+          "package_name": "com.galacaterers.app_data"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "531889683241-nfk5jbp3sbb5k4svf9im35d3sma33sk9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEQPTtFu2VXz3xsaivyOkjqp9AHAObxCI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "531889683241-nfk5jbp3sbb5k4svf9im35d3sma33sk9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
