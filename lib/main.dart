@@ -2,6 +2,7 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:myapp/screens/HomeScreen/components/MenuPage.dart';
 import 'package:myapp/screens/MenuDetailPage.dart';
@@ -20,7 +21,6 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // Initialize Firebase app
   //handleDeepLink();
-  final PendingDynamicLinkData? initialLink = await FirebaseDynamicLinks.instance.getInitialLink();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool? isFirstTime = prefs.getBool('first_time');
   if (isFirstTime == null) {
@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
     return ScreenUtilInit(
       designSize: const Size(412, 915),
       minTextAdapt: true,
@@ -44,18 +45,23 @@ class MyApp extends StatelessWidget {
           create: (_) {
             return InternetConnectionChecker().onStatusChange;
           },
-          child: MaterialApp(
+          child: GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Flutter Demo',
             theme: ThemeData(
               fontFamily: 'Roboto',
               primarySwatch: Colors.blue,
             ),
-            routes: {
-              // When navigating to the "/" route, build the FirstScreen widget.
-              //'/': (context) => const FirstScreen(),
-              // When navigating to the "/second" route, build the SecondScreen widget.
-              '/menudetail': (context) => MenuPage(),
+            builder: (context, child) {
+              // initialize the navigator state before building the widget tree
+              return Navigator(
+                key: navigatorKey,
+                onGenerateRoute: (settings) {
+                  return MaterialPageRoute(
+                    builder: (context) => child!,
+                  );
+                },
+              );
             },
             home: child,
           ),

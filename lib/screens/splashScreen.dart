@@ -23,7 +23,7 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver{
 
   bool animate =false;
 
@@ -42,6 +42,83 @@ class _SplashScreenState extends State<SplashScreen> {
 
   bool _isMaintenanceMode = false;
   String _maintenanceMsg = '';
+
+  late String _linkMessage;
+  bool _isCreatingLink = false;
+
+  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+  final String _testString =
+      'To test: long press link and then copy and click from a non-browser '
+      "app. Make sure this isn't being tested on iOS simulator and iOS xcode "
+      'is properly setup. Look at firebase_dynamic_links/README.md for more '
+      'details.';
+
+  final String DynamicLink = 'https://galacaterers.page.link/menudetail?name=<name>&product=<product>';
+  final String Link = 'https://galacaterers.page.link/category';
+
+  Future<void> initDynamicLinks() async {
+    final PendingDynamicLinkData? data = await dynamicLinks.getInitialLink();
+    final Uri? deepLink = data?.link;
+    if (deepLink != null) {
+      final Map<String, String> queryParameters = deepLink.queryParameters;
+      final String? name = queryParameters['name'];
+      final String? product = queryParameters['product'];
+      if (name != null && product != null) {
+        Get.off(() => MenuDetailPage(name: name, product: product));
+      }
+    }
+
+    dynamicLinks.onLink.listen((dynamicLinkData) {
+      final Uri? deepLink = dynamicLinkData.link;
+      if (deepLink != null) {
+        final Map<String, String> queryParameters = deepLink.queryParameters;
+        final String? name = queryParameters['name'];
+        final String? product = queryParameters['product'];
+        if (name != null && product != null) {
+          Get.to(() => MenuDetailPage(name: name, product: product));
+        }
+        else{
+          print('Link Not Found!');
+        }
+      }
+    }).onError((error) {
+      print('onLink error');
+      print(error.message);
+    });
+  }
+
+
+  Future<void> _createDynamicLink(bool short, String name, String product) async {
+    setState(() {
+      _isCreatingLink = true;
+    });
+
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: 'https://galacaterers.page.link/',
+      link: Uri.parse('https://galacaterers.page.link/menudetail?name=$name&product=$product'),
+      androidParameters: const AndroidParameters(
+        packageName: 'com.galacaterers.app_data',
+        minimumVersion: 0,
+      ),
+    );
+
+    Uri url;
+    if (short) {
+      final ShortDynamicLink shortLink =
+      await dynamicLinks.buildShortLink(parameters);
+      url = shortLink.shortUrl;
+      print(url.toString());
+    } else {
+      url = await dynamicLinks.buildLink(parameters);
+      print(url.toString());
+    }
+
+    setState(() {
+      _linkMessage = url.toString();
+      _isCreatingLink = false;
+    });
+  }
+
 
   @override
   void initState() {
@@ -65,69 +142,40 @@ class _SplashScreenState extends State<SplashScreen> {
 
     });
 
-    // Listen for dynamic links
-    FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
-      if (dynamicLinkData != null) {
-        // Extract the deep link URL from the DynamicLinkData
-        Uri deepLink = dynamicLinkData.link;
-        print(deepLink);
-
-        // Extract the query parameters from the deep link URL
-        String? name = deepLink.queryParameters['name'];
-        String? product = deepLink.queryParameters['product'];
-
-        // Provide default values for the query parameters if they are null
-        name ??= 'Default Name';
-        product ??= 'Default Product';
-
-        // Navigate to the MenuDetailPage with the extracted parameters
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MenuDetailPage(
-              name: name!,
-              product: product!,
-            ),
-          ),
-        );
-      }
-    }, onError: (error) {
-      // Handle any errors
-    });
-
-    // Get the initial dynamic link (if any)
-    FirebaseDynamicLinks.instance.getInitialLink().then((dynamicLinkData) {
-      if (dynamicLinkData != null) {
-        // Extract the deep link URL from the DynamicLinkData
-        Uri deepLink = dynamicLinkData.link;
-        print(deepLink);
-
-        // Extract the query parameters from the deep link URL
-        String? name = deepLink.queryParameters['name'];
-        String? product = deepLink.queryParameters['product'];
-
-        // Provide default values for the query parameters if they are null
-        name ??= 'Default Name';
-        product ??= 'Default Product';
-
-        // Navigate to the MenuDetailPage with the extracted parameters
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => MenuDetailPage(
-              name: name!,
-              product: product!,
-            ),
-          ),
-        );
-      }
-    }, onError: (error) {
-      // Handle any errors
-    });
-
     _checkMaintenanceMode();
+    WidgetsBinding.instance!.addObserver(this);
+    initDynamicLinks();
+    FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
+      final Uri? deepLink = dynamicLinkData?.link;
 
+      if (deepLink != null) {
+        // Navigate to the appropriate page based on the deep link parameters
+        String name = deepLink.queryParameters['name'] ?? '';
+        String product = deepLink.queryParameters['product'] ?? '';
+        Get.to(() => MenuDetailPage(name: name, product: product));
+      }
+    }).onError((error) {
+      if (kDebugMode) {
+        print('error.message');
+      }
+    });
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      final PendingDynamicLinkData? data =
+      await FirebaseDynamicLinks.instance.getInitialLink();
+      final Uri? deepLink = data?.link;
+
+      if (deepLink != null) {
+        String? name = deepLink.queryParameters['name'];
+        String? product = deepLink.queryParameters['product'];
+
+        Get.offNamed('/menudetail', arguments: {
+          'name': name,
+          'product': product,
+        });
+      }
+    });
   }
+
 
   Future<void> _checkMaintenanceMode() async {
     try {
@@ -147,6 +195,15 @@ class _SplashScreenState extends State<SplashScreen> {
   void dispose() {
     super.dispose();
     internetSubscription.cancel();
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      initDynamicLinks();
+    }
   }
 
   /*@override

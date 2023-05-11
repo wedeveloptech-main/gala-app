@@ -600,7 +600,7 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 18.h,),
+                      SizedBox(height: 17.h,),
                       Container(
                         width: double.infinity,
                         child: Column(
