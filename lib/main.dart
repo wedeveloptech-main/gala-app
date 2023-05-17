@@ -13,6 +13,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'constants/color.dart';
+
 const String SETTINGS_BOX = "settings";
 const String API_BOX = "api_data";
 const String FAVORITES_BOX = "favorites";
@@ -47,10 +49,24 @@ class MyApp extends StatelessWidget {
           },
           child: GetMaterialApp(
             debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
+            title: 'Gala Caterers',
             theme: ThemeData(
               fontFamily: 'Roboto',
-              primarySwatch: Colors.blue,
+              primarySwatch: MaterialColor(
+                0xFF0D55A1,
+                <int, Color>{
+                  50: kblue.withOpacity(0.1),
+                  100: kblue.withOpacity(0.2),
+                  200: kblue.withOpacity(0.3),
+                  300: kblue.withOpacity(0.4),
+                  400: kblue.withOpacity(0.5),
+                  500: kblue.withOpacity(0.6),
+                  600: kblue.withOpacity(0.7),
+                  700: kblue.withOpacity(0.8),
+                  800: kblue.withOpacity(0.9),
+                  900: kblue.withOpacity(1),
+                },
+              ),
             ),
             builder: (context, child) {
               // initialize the navigator state before building the widget tree

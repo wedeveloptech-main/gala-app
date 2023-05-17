@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
-// 
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,7 +12,6 @@ import 'package:myapp/Models/AllMenuList.dart';
 import 'package:myapp/Models/NewAddListModel.dart';
 import 'package:myapp/constants/color.dart';
 import 'package:myapp/screens/HomeScreen/SearchPage.dart';
-import 'package:myapp/screens/HomeScreen/components/MenuList.dart';
 import 'package:myapp/screens/ScrollPage.dart';
 import 'package:myapp/services/api_service.dart';
 import 'package:path_provider/path_provider.dart';

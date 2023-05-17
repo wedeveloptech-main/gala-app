@@ -193,8 +193,8 @@ class _CategoryPage2State extends State<CategoryPage2> {
                       // By default, show a loading spinner.
                       return const Center(
                         child: SizedBox(
-                          height: 50.0,
-                          width: 50.0,
+                          height: 24.0,
+                          width: 24.0,
                           child: CircularProgressIndicator(),
                         ),
                       );

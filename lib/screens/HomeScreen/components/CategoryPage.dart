@@ -40,22 +40,6 @@ class _CategoryPageState extends State<CategoryPage> {
     futureAllCatModel = fetchAllCatModel();
     futureCatMenuModel = fetchCatMenuModel(String);
 
-    FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
-      if (dynamicLinkData != null) {
-        // Extract the deep link URL from the PendingDynamicLinkData
-        Uri deepLink = dynamicLinkData.link;
-
-        print(deepLink);
-        // Navigate to the MenuDetailPage with the extracted parameters
-        Get.off(() => CategoryPage());
-
-      }
-    }).onError((error) {
-      if (kDebugMode) {
-        print('error.message');
-      }
-    });
-
     _checkMaintenanceMode();
   }
 
@@ -226,6 +210,11 @@ class _CategoryPageState extends State<CategoryPage> {
                       future: futureAllCatModel,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
+                          final screenWidth = MediaQuery.of(context).size.width;
+                          final aspectRatio = 0.62; // desired aspect ratio
+                          final itemWidth = (screenWidth - (2 * 3.w)) / 2; // subtract the cross axis spacing from the screen width
+                          final itemHeight = itemWidth / aspectRatio;
+                          final childAspectRatio = itemWidth / itemHeight;
                           return
                             GridView.builder(
                               //itemCount: image.length,
@@ -233,7 +222,7 @@ class _CategoryPageState extends State<CategoryPage> {
                               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
                                   crossAxisSpacing: 3.w,
-                                childAspectRatio: 1.16,
+                                childAspectRatio: 2.0 * childAspectRatio,
                               ),
                               itemBuilder: (BuildContext context, int index){
                                 //final DocumentSnapshot documentSnapshot = snapshot.data!.data[index];
@@ -297,8 +286,8 @@ class _CategoryPageState extends State<CategoryPage> {
                         // By default, show a loading spinner.
                         return const Center(
                           child: SizedBox(
-                            height: 50.0,
-                            width: 50.0,
+                            height: 24.0,
+                            width: 24.0,
                             child: CircularProgressIndicator(),
                           ),
                         );

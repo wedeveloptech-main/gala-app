@@ -20,6 +20,6 @@ List<UnboardingContent> contents = [
   UnboardingContent(
       title: 'We Cater To Corporates Too!',
       image: 'assets/images/Board 3.png',
-      description: "We provide end-to-end corporate \ncatering services."
+      description: "We provide end-to-end corporate catering services."
   ),
 ];

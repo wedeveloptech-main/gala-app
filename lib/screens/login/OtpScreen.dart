@@ -32,10 +32,11 @@ class OTPScreen extends StatefulWidget {
 }
 
 class _OTPScreenState extends State<OTPScreen> {
-  int start = 59;
+  int start = 09;
   bool wait = false;
-  int secondsRemaining = 59;
+  int secondsRemaining = 09;
   bool enableResend = false;
+  late String _newOTP;
   late Timer timer;
   String verificationIdFinal = "";
   String smsCode = "";
@@ -47,6 +48,10 @@ class _OTPScreenState extends State<OTPScreen> {
   late String _password;
   late String _profilestatus;
   late String _salt;
+
+  bool obscureText = false;
+  String obscuringCharacter = '*';
+  int otpprefilled = 0;
 
   void _submitOtp() async {
     final response = await http.get(
@@ -72,6 +77,65 @@ class _OTPScreenState extends State<OTPScreen> {
     }
   }
 
+  Future<void> _resendCode() async {
+    //showToastMessage("OTP Resend Successfully!");
+    setState(() {
+      //showToastMessage("OTP Resend Successfully!");
+      secondsRemaining = 09;
+      enableResend = false;
+    });
+
+    otpController.clear();
+
+    try {
+      final configResponse = await http.get(Uri.parse('http://appdata.galacaterers.in/getconfig-ax.php'));
+
+      if (configResponse.statusCode == 200) {
+        final configJson = jsonDecode(configResponse.body);
+        final base_url = configJson['data']['apidomain'];
+
+        final response = await http.get(Uri.parse('$base_url/requserlogin-ax.php?phno=${widget.phoneNumber}'));
+        final data = json.decode(response.body);
+
+        if (data['code'] == 1) {
+          setState(() {
+            _salt = data['data']['salt'];
+            //_password = data['data']['password'];
+            _password = widget.password;
+            _profilestatus = data['data']['profilestatus'];
+          });
+
+        }
+
+        try {
+          final configData = await fetchMaintenanceModeData();
+          setState(() {
+            otpprefilled = configData['data']['otpprefilled'];
+            if (otpprefilled == 1) {
+              otpController.text = _password.toString();
+            } else {
+              otpController.text = '';
+            }
+          });
+        } catch (e) {
+          print(e.toString());
+        }
+
+        showToastMessage("OTP sent to ${widget.phoneNumber}!");
+        //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('OTP sent successfully')));
+      } else {
+        throw Exception('Failed to load config');
+      }
+    } catch (error) {
+      showToastMessage("Error occurred: $error");
+      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error occurred: $error')));
+    }
+
+    setState(() async {
+      await SessionManager().set("password", _password);
+      await SessionManager().set("salt", _salt);
+    });
+  }
 
 
   @override
@@ -89,9 +153,26 @@ class _OTPScreenState extends State<OTPScreen> {
       }
     });
     _checkMaintenanceMode();
+    fetchConfigData();
     _password = widget.password;
     _profilestatus = widget.profilestatus;
     _salt = widget.salt;
+  }
+
+  Future<void> fetchConfigData() async {
+    try {
+      final configData = await fetchMaintenanceModeData();
+      setState(() {
+        otpprefilled = configData['data']['otpprefilled'];
+        if (otpprefilled == 1) {
+          otpController.text = widget.password.toString();
+        } else {
+          otpController.text = '';
+        }
+      });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   Future<void> _checkMaintenanceMode() async {
@@ -162,7 +243,6 @@ class _OTPScreenState extends State<OTPScreen> {
                           ),
                           length: 5,
 
-                          //obscureText: true,
                           blinkWhenObscuring: true,
                           animationType: AnimationType.fade,
                           pinTheme: PinTheme(
@@ -243,6 +323,8 @@ class _OTPScreenState extends State<OTPScreen> {
                                     MaterialPageRoute(builder: (context) => HomeScreen()),
                                         (route) => false,
                                   );
+                                  await SessionManager().set("isLogin", true);
+                                  showToastMessage("OTP Verified Successfully!");
                                 }
 
                               } else if  (enteredOTP == null || enteredOTP.isEmpty){
@@ -320,51 +402,10 @@ class _OTPScreenState extends State<OTPScreen> {
     //other code here
     setState((){
       showToastMessage("");
-      secondsRemaining = 59;
+      secondsRemaining = 09;
       enableResend = false;
     });
   }*/
-
-  Future<void> _resendCode() async {
-    //showToastMessage("OTP Resend Successfully!");
-    setState(() {
-      //showToastMessage("OTP Resend Successfully!");
-      secondsRemaining = 59;
-      enableResend = false;
-    });
-
-    try {
-      final configResponse = await http.get(Uri.parse('http://appdata.galacaterers.in/getconfig-ax.php'));
-
-      if (configResponse.statusCode == 200) {
-        final configJson = jsonDecode(configResponse.body);
-        final base_url = configJson['data']['apidomain'];
-
-        final response = await http.get(Uri.parse('$base_url/requserlogin-ax.php?phno=${widget.phoneNumber}'));
-        final data = json.decode(response.body);
-
-        if (data['code'] == 1) {
-          setState(() {
-            _salt = data['data']['salt'];
-            _password = data['data']['password'];
-            _profilestatus = data['data']['profilestatus'];
-          });
-        }
-
-        showToastMessage("OTP sent to ${widget.phoneNumber}!");
-        //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('OTP sent successfully')));
-      } else {
-        throw Exception('Failed to load config');
-      }
-    } catch (error) {
-      showToastMessage("Error occurred: $error");
-      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error occurred: $error')));
-    }
-
-    setState(() {
-      //_isLoading = false;
-    });
-  }
 
   void showToastMessage(String message){
     Fluttertoast.showToast(

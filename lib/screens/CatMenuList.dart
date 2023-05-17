@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -13,7 +14,6 @@ import 'package:myapp/Models/CreateMenu.dart';
 import 'package:myapp/Models/NewAddListModel.dart';
 import 'package:myapp/constants/color.dart';
 import 'package:myapp/screens/HomeScreen/SearchPage.dart';
-import 'package:myapp/screens/HomeScreen/components/MenuList.dart';
 import 'package:myapp/screens/MenuDetailPage.dart';
 import 'package:myapp/services/api_service.dart';
 import 'package:path_provider/path_provider.dart';
@@ -24,6 +24,8 @@ import 'package:sliding_sheet/sliding_sheet.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:http/http.dart' as http;
 
+import '../Models/AddMenuData.dart';
+import '../Models/SelectedCreateMenu.dart';
 import '../constants/NoInternet.dart';
 import 'HomeScreen/components/MenuList2.dart';
 import 'MaintananceMode.dart';
@@ -44,7 +46,9 @@ class _CatMenuListState extends State<CatMenuList> with TickerProviderStateMixin
   late Future<CatMenu> futureCatMenuModel;
   final TextEditingController _controller = TextEditingController();
   late Future<CreateMenu> futureCreateMenu;
+  late Future<SelectedCreateMenu> futureSelectedCreateMenu;
   Future<CreateData>? futureCreateData;
+  Future<AddMenuData>? futureAddMenuData;
   int _currentIndex = 0;
   late PageController _pageController;
 
@@ -62,14 +66,34 @@ class _CatMenuListState extends State<CatMenuList> with TickerProviderStateMixin
   bool _isMaintenanceMode = false;
   String _maintenanceMsg = '';
 
+  late SharedPreferences _prefs;
+
   @override
   void initState() {
     super.initState();
     futureCatMenuModel = fetchCatMenuModel(widget.category);
+    futureAddMenuData = fetchAddMenuData(_controller.text, String);
     futureCreateMenu = fetchCreateMenu();
     futureCreateData = fetchCreateData(_controller.text);
+    futureSelectedCreateMenu = fetchSelectedCreateMenu(_controller.text);
     _checkMaintenanceMode();
+    _initPrefs();
   }
+
+  void _initPrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+    setState(() {
+      // Load saved checkboxes from shared preferences
+      _selected_box = _prefs.getStringList('selectedBox')?.map(int.parse).toList() ?? [];
+    });
+  }
+
+  void _saveSelectedBox() {
+    // Save selected checkboxes to shared preferences
+    _prefs.setStringList('selectedBox', _selected_box.map((index) => index.toString()).toList());
+  }
+
+  List<int> _selected_box = [];
 
   Future<void> _checkMaintenanceMode() async {
     try {
@@ -506,7 +530,7 @@ class _CatMenuListState extends State<CatMenuList> with TickerProviderStateMixin
                       child: SizedBox(
                         height: 50.0,
                         width: 50.0,
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(),G
                       ),
                     );
                   },
@@ -807,13 +831,14 @@ class _CatMenuListState extends State<CatMenuList> with TickerProviderStateMixin
                       child: FutureBuilder<CatMenu>(
                         future: futureCatMenuModel,
                         builder: (context, snapshot) {
+
                           if (snapshot.hasData) {
                             final screenWidth = MediaQuery.of(context).size.width;
                             final screenHeight = MediaQuery.of(context).size.height;
 
                             // Calculate the spacing based on the screen width
                             final spacing = screenWidth * 0.02;
-                            final childAspectRatio = screenHeight > 800 ? 1.06 : 1.18;
+                            final childAspectRatio = screenWidth / 390.h;
                             return
                               GridView.builder(
                                 //itemCount: image.length,
@@ -825,6 +850,7 @@ class _CatMenuListState extends State<CatMenuList> with TickerProviderStateMixin
                                   childAspectRatio: childAspectRatio.toDouble(),
                                 ),
                                 itemBuilder: (BuildContext context, int index){
+                                  final prod = snapshot.data!.data[index].prodId;
                                   //final DocumentSnapshot documentSnapshot = snapshot.data!.data[index];
                                   return InkWell(
                                     onTap: () {
@@ -953,72 +979,263 @@ class _CatMenuListState extends State<CatMenuList> with TickerProviderStateMixin
                                                               ),
                                                             ),
                                                             SizedBox(height: 16.h,),
-                                                            Padding(
-                                                              padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                                              child: Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                children: <Widget>[
-                                                                  SizedBox(height: 5.h,),
-                                                                  TextButton(
-                                                                    onPressed: (){
-                                                                      showModalBottomSheet(
-                                                                        backgroundColor: Colors.transparent,
-                                                                        isScrollControlled: true,
-                                                                        context: context,
-                                                                        builder: (BuildContext context) {
-                                                                          return Container(
-                                                                            height: MediaQuery.of(context).size.height * 0.7,
-                                                                            decoration: BoxDecoration(
-                                                                              color: Colors.white,
-                                                                              borderRadius:  BorderRadius.only(
-                                                                                topLeft: Radius.circular(25.r),
-                                                                                topRight: Radius.circular(25.r),
+                                                            Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              children: <Widget>[
+                                                                SizedBox(height: 5.h,),
+                                                                TextButton(
+                                                                  onPressed: () async {
+                                                                    showModalBottomSheet(
+                                                                      backgroundColor: Colors.transparent,
+                                                                      isScrollControlled: true,
+                                                                      context: context,
+                                                                      builder: (BuildContext context) {
+                                                                        return Container(
+                                                                          height: MediaQuery.of(context).size.height * 0.7,
+                                                                          decoration: BoxDecoration(
+                                                                            color: Colors.white,
+                                                                            borderRadius:  BorderRadius.only(
+                                                                              topLeft: Radius.circular(25.r),
+                                                                              topRight: Radius.circular(25.r),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                            Padding(
+                                                                              padding: EdgeInsets.all(10.r),
+                                                                              child: Container(
+                                                                                width: double.infinity,
+                                                                                //padding: const EdgeInsets.only(bottom: 44),
+                                                                                decoration: BoxDecoration(
+                                                                                  color: Colors.white,
+                                                                                  borderRadius: BorderRadius.only(
+                                                                                    topLeft: Radius.circular(20.r),
+                                                                                    topRight: Radius.circular(20.r),
+                                                                                  ),
+                                                                                ),
+                                                                                child: Column(
+                                                                                  children: [
+                                                                                    Column(
+                                                                                      mainAxisSize: MainAxisSize.min,
+                                                                                      children: <Widget>[
+                                                                                        SizedBox(height: 6.h,),
+                                                                                        Center(
+                                                                                          child: Container(
+                                                                                            decoration: BoxDecoration(
+                                                                                                borderRadius: BorderRadius.circular(20.r),
+                                                                                                color: kblue
+                                                                                            ),
+                                                                                            width: 100.w,
+                                                                                            height: 5.h,
+                                                                                          ),
+                                                                                        ),
+                                                                                        SizedBox(height: 16.h,),
+                                                                                      ],
+                                                                                    ),
+                                                                                    SizedBox(height: 5.h,),
+                                                                                    GestureDetector(
+                                                                                      onTap: (){
+                                                                                        addNewMenuItem(context);
+                                                                                      },
+                                                                                      child: Row(
+                                                                                        mainAxisAlignment: MainAxisAlignment.end,
+                                                                                        children: [
+                                                                                          Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
+                                                                                          SizedBox(width: 10.w,),
+                                                                                          Text('New Menu', style: TextStyle(color: kblue,fontSize: 20.sp),)
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                    SizedBox(height: 5.h,),
+                                                                                    Divider(color: kblack),
+                                                                                    Expanded(
+                                                                                      child: Container(//screen decoration
+                                                                                        //alignment: Alignment.center,
+                                                                                        width: double.infinity,
+                                                                                        //padding: const EdgeInsets.only(bottom: 44),
+                                                                                        decoration: BoxDecoration(
+                                                                                          color: Colors.white,
+                                                                                          borderRadius: BorderRadius.only(
+                                                                                            topLeft: Radius.circular(20.r),
+                                                                                            topRight: Radius.circular(20.r),
+                                                                                          ),
+                                                                                        ),
+                                                                                        //use a listenable builder, it will make sure it builds whenever needed
+                                                                                        child: (futureCreateMenu == null)
+                                                                                            ? Column(
+                                                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                                                          children: [
+                                                                                            //cartHeadWidget("0"),
+                                                                                            Container(
+                                                                                              //padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                                                                                              child: Center(
+                                                                                                child: Text(
+                                                                                                  "Create New Menu",
+                                                                                                  style: TextStyle(color: Colors.black54, fontSize: 30.sp, fontWeight: FontWeight.bold,
+                                                                                                  ),),
+                                                                                              ),
+                                                                                            ),
+                                                                                          ],
+                                                                                        )
+                                                                                            : RefreshIndicator(
+                                                                                          onRefresh: () {
+                                                                                            setState(() {});
+                                                                                            return fetchCreateMenu();
+                                                                                          },
+                                                                                          child: FutureBuilder<SelectedCreateMenu>(
+                                                                                            future: fetchSelectedCreateMenu(prod),
+                                                                                            builder: (context, snapshot) {
+                                                                                              if (snapshot.hasData && snapshot.data!.data.isNotEmpty) {
+                                                                                                return ListView.builder(
+                                                                                                  itemCount: snapshot.data!.data.length,
+                                                                                                  itemBuilder: (context, index) {
+                                                                                                    return ListTile1(model: snapshot.data!.data[index], prod:prod);
+                                                                                                    /*return CheckboxListTile(
+                                                                                                      title: Text(
+                                                                                                        snapshot.data!.data[index].name,
+                                                                                                        maxLines: 1,
+                                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                                        style: TextStyle(
+                                                                                                          color: kblue,
+                                                                                                          fontSize: 20.sp,
+                                                                                                          fontWeight: FontWeight.bold,
+                                                                                                        ),
+                                                                                                      ),
+                                                                                                      activeColor: kblue,
+                                                                                                      value: snapshot.data!.data[index].isselected == "1",
+                                                                                                      onChanged: (bool? value) async {
+                                                                                                        //print('Checked');
+                                                                                                        if (value != null) {
+                                                                                                          setState(() {
+                                                                                                            snapshot.data!.data[index].isselected = value ? "1" : "0";
+                                                                                                            if (value) {
+                                                                                                              print('true');
+                                                                                                              futureAddMenuData = fetchAddMenuData(
+                                                                                                                  snapshot.data!.data[index].id, prod);
+                                                                                                              _selected_box.add(index);
+                                                                                                              Fluttertoast.showToast(
+                                                                                                                msg: "Item Added to Menu!",
+                                                                                                                toastLength: Toast.LENGTH_SHORT,
+                                                                                                                gravity: ToastGravity.BOTTOM,
+                                                                                                                backgroundColor: Colors.black54,
+                                                                                                                textColor: Colors.white,
+                                                                                                              );
+                                                                                                            } else {
+                                                                                                              print('false');
+                                                                                                              futureAddMenuData = fetchAddMenuData(
+                                                                                                                  snapshot.data!.data[index].id, prod);
+                                                                                                              _selected_box.remove(index);
+                                                                                                              print(index);
+                                                                                                              Fluttertoast.showToast(
+                                                                                                                msg: "Item Removed from Menu!",
+                                                                                                                toastLength: Toast.LENGTH_SHORT,
+                                                                                                                gravity: ToastGravity.BOTTOM,
+                                                                                                                backgroundColor: Colors.black54,
+                                                                                                                textColor: Colors.white,
+                                                                                                              );
+                                                                                                            }
+                                                                                                          });
+                                                                                                        }
+                                                                                                      },
+                                                                                                      contentPadding: EdgeInsets.zero,
+                                                                                                      controlAffinity: ListTileControlAffinity.leading,
+                                                                                                    );*/
+                                                                                                  },
+                                                                                                );
+                                                                                              }
+                                                                                              else if (snapshot.hasError) {
+                                                                                                return Column(
+                                                                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                                                                  children: [
+                                                                                                    //cartHeadWidget("0"),
+                                                                                                    Container(
+                                                                                                      //padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                                                                                                      child: Center(
+                                                                                                        child: Text(
+                                                                                                          "No Data Found!",
+                                                                                                          style: TextStyle(color: Colors.black54, fontSize: 20.sp, fontWeight: FontWeight.bold,
+                                                                                                          ),),
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ],
+                                                                                                );
+                                                                                              }
+
+                                                                                              else if (snapshot.hasData && snapshot.data!.data.isEmpty) {
+                                                                                                return Column(
+                                                                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                                                                  children: [
+                                                                                                    //cartHeadWidget("0"),
+                                                                                                    Container(
+                                                                                                      //padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                                                                                                      child: Center(
+                                                                                                        child: Text(
+                                                                                                          "Create New Menu",
+                                                                                                          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold,
+                                                                                                          ),),
+                                                                                                      ),
+                                                                                                    ),
+                                                                                                  ],
+                                                                                                );
+                                                                                              }
+
+                                                                                              return const Center(
+                                                                                                child: SizedBox(
+                                                                                                  height: 24.0,
+                                                                                                  width: 24.0,
+                                                                                                  child: CircularProgressIndicator(),
+                                                                                                ),
+                                                                                              );
+                                                                                            },
+                                                                                          ),
+                                                                                        ),
+                                                                                      ),
+
+
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
                                                                               ),
                                                                             ),
-                                                                            child: Center(
-                                                                              child: MenuList2(
-                                                                                prod: snapshot.data!.data[index].prodId.toString(),
-                                                                              ),
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                      );
-                                                                    },
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
-                                                                        SizedBox(width: 15.w,),
-                                                                        Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                      ],
-                                                                    ),
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                  },
+                                                                  child: Row(
+                                                                    children: [
+                                                                      SizedBox(width: 10.w,),
+                                                                      Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
+                                                                      SizedBox(width: 15.w,),
+                                                                      Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                    ],
                                                                   ),
-                                                                  Divider(height: 5.h, color: kwhite2,),
-                                                                  TextButton(
-                                                                    onPressed: () async{
-                                                                      final urlImage = snapshot.data!.data[index].thumb.toString();
-                                                                      final url = Uri.parse(urlImage);
-                                                                      final response = await http.get(url);
-                                                                      final bytes = response.bodyBytes;
+                                                                ),
+                                                                Divider(height: 5.h, color: Colors.black45,),
+                                                                TextButton(
+                                                                  onPressed: () async{
+                                                                    final urlImage = snapshot.data!.data[index].thumb.toString();
+                                                                    final url = Uri.parse(urlImage);
+                                                                    final response = await http.get(url);
+                                                                    final bytes = response.bodyBytes;
 
-                                                                      final temp = await getTemporaryDirectory();
-                                                                      final path = '${temp.path}/image.jpg';
-                                                                      File(path).writeAsBytesSync(bytes);
+                                                                    final temp = await getTemporaryDirectory();
+                                                                    final path = '${temp.path}/image.jpg';
+                                                                    File(path).writeAsBytesSync(bytes);
 
-                                                                      await Share.shareFiles([path], text: snapshot.data!.data[index].prodName);
-                                                                      //await Share.share([path], subject: snapshot.data!.data[index].prodName);
-                                                                    },
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
-                                                                        SizedBox(width: 15.w,),
-                                                                        Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                      ],
-                                                                    ),
+                                                                    await Share.shareFiles([path], text: snapshot.data!.data[index].prodName);
+                                                                    //await Share.share([path], subject: snapshot.data!.data[index].prodName);
+                                                                  },
+                                                                  child: Row(
+                                                                    children: [
+                                                                      SizedBox(width: 10.w,),
+                                                                      Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
+                                                                      SizedBox(width: 15.w,),
+                                                                      Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                    ],
                                                                   ),
-                                                                  SizedBox(height: 20.h,),
-                                                                ],
-                                                              ),
+                                                                ),
+                                                                SizedBox(height: 20.h,),
+                                                              ],
                                                             ),
                                                           ],
                                                         ),
@@ -1071,8 +1288,8 @@ class _CatMenuListState extends State<CatMenuList> with TickerProviderStateMixin
                           // By default, show a loading spinner.
                           return const Center(
                             child: SizedBox(
-                              height: 50.0,
-                              width: 50.0,
+                              height: 24.0,
+                              width: 24.0,
                               child: CircularProgressIndicator(),
                             ),
                           );
@@ -1401,3 +1618,79 @@ class _CatMenuListState extends State<CatMenuList> with TickerProviderStateMixin
   }
 
 }
+
+
+class ListTile1 extends StatefulWidget {
+  final Datum1 model;
+  final prod;
+  const ListTile1({super.key, required this.model, required this.prod});
+
+  @override
+  State<ListTile1> createState() => _ListTile1State();
+}
+
+class _ListTile1State extends State<ListTile1> {
+  late Datum1 model;
+  Future<AddMenuData>? futureAddMenuData;
+
+  @override
+  void initState() {
+    model = widget.model;
+    futureAddMenuData = fetchAddMenuData(String, String);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CheckboxListTile(
+      title: Text(
+        model.name ?? "",
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: kblue, // kBlue
+          fontSize: 20.sp,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      activeColor: kblue,
+      value: model.isselected == "1",
+      onChanged: (bool? value) async {
+        //print('Checked');
+        if (value != null) {
+          setState(() {
+            model.isselected = value ? "1" : "0";
+            if (value) {
+              print('true');
+               futureAddMenuData = fetchAddMenuData(model.id, widget.prod);
+              // _selected_box.add(index);
+              /*Fluttertoast.showToast(
+                msg: "Item Added to Menu!",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Colors.black54,
+                textColor: Colors.white,
+              );*/
+            } else {
+              print('false');
+              futureAddMenuData = fetchAddMenuData(model.id, widget.prod);
+              // _selected_box.remove(index);
+              // print(index);
+              /*Fluttertoast.showToast(
+                msg: "Item Removed from Menu!",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Colors.black54,
+                textColor: Colors.white,
+              );*/
+            }
+          });
+        }
+      },
+      contentPadding: EdgeInsets.zero,
+      controlAffinity: ListTileControlAffinity.leading,
+    );
+  }
+
+}
+

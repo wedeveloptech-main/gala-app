@@ -28,7 +28,7 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
   final phoneNumber = TextEditingController();
   final studentClass = TextEditingController();
 
-  final _searchKey = GlobalKey<FormState>();
+  final _searchKey1 = GlobalKey<FormState>();
   bool _showClearButton = false;
   String name = "User";
 
@@ -138,9 +138,8 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                       builder: (context, snapshot) {
                         return  Expanded(
                           child: Form(
-                            key: _searchKey,
-                            child:
-                            /*TextFormField(
+                            key: _searchKey1,
+                            child: /*TextFormField(
                               controller: name,
                               textCapitalization: TextCapitalization.words,
                               autocorrect: true,
@@ -152,7 +151,7 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                                 return null;
                               },
                               onFieldSubmitted: (value) {
-                                if (_searchKey.currentState!.validate()) {
+                                if (_searchKey1.currentState!.validate()) {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -171,7 +170,7 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                                 filled: true,
                                 suffixIcon: IconButton(
                                   onPressed: () {
-                                    if (_searchKey.currentState!.validate()) {
+                                    if (_searchKey1.currentState!.validate()) {
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -204,7 +203,7 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                                 return null;
                               },
                               onFieldSubmitted: (value) {
-                                if (_searchKey.currentState!.validate()) {
+                                if (_searchKey1.currentState!.validate()) {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -213,13 +212,7 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                                             nameHolder: search_name.text,
                                           ),
                                     ),
-                                  ).then((value) {
-                                    // This code will run after the SearchDataList page is popped off the navigation stack
-                                    search_name.clear();
-                                    setState(() {
-                                      _showClearButton = false;
-                                    });
-                                  });
+                                  );
                                 }
                               },
                               decoration: InputDecoration(
@@ -238,7 +231,7 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                                 suffixIcon:
                                 /*IconButton(
                                   onPressed: () {
-                                    if (_searchKey.currentState!.validate()) {
+                                    if (_searchKey1.currentState!.validate()) {
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -258,20 +251,14 @@ class _HeaderWithSearchBoxState extends State<HeaderWithSearchBox> {
                                 )
                                     : IconButton(
                                   onPressed: () {
-                                    if (_searchKey.currentState!.validate()) {
+                                    if (_searchKey1.currentState!.validate()) {
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
                                                   SearchDataList(
                                                     nameHolder: search_name.text,))
-                                      ).then((value) {
-                                        // This code will run after the SearchDataList page is popped off the navigation stack
-                                        search_name.clear();
-                                        setState(() {
-                                          _showClearButton = false;
-                                        });
-                                      });
+                                      );
                                     }
                                   },
                                   icon: Icon(Icons.search, size: 25.r, color: kblue,),

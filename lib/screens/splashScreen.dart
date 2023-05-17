@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_session_manager/flutter_session_manager.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:myapp/screens/MaintananceMode.dart';
@@ -13,6 +16,7 @@ import 'package:myapp/screens/onBoard/onboarding.dart';
 import 'package:myapp/screens/splashScreen2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:http/http.dart' as http;
 
 import '../services/api_service.dart';
 
@@ -53,8 +57,8 @@ class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver
       'is properly setup. Look at firebase_dynamic_links/README.md for more '
       'details.';
 
-  final String DynamicLink = 'https://galacaterers.page.link/menudetail?name=<name>&product=<product>';
-  final String Link = 'https://galacaterers.page.link/category';
+  final String DynamicLink = 'https://gala.page.link/menudetail?name=<name>&product=<product>';
+  final String Link = 'https://gala.page.link/category';
 
   Future<void> initDynamicLinks() async {
     final PendingDynamicLinkData? data = await dynamicLinks.getInitialLink();
@@ -64,7 +68,69 @@ class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver
       final String? name = queryParameters['name'];
       final String? product = queryParameters['product'];
       if (name != null && product != null) {
-        Get.off(() => MenuDetailPage(name: name, product: product));
+        Get.off(() => MenuDetailPage(name: name, product: product, openedByDeepLink: true,))?.then((value) => {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("Save Menu?"),
+              content: Text("Do you want to save this menu?"),
+              actions: [
+                TextButton(
+                  child: Text("No"),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                TextButton(
+                  child: Text("Yes"),
+                  onPressed: () async {
+                    final configResponse = await http
+                        .get(Uri.parse('http://appdata.galacaterers.in/getconfig-ax.php'));
+
+                    if (configResponse.statusCode == 200) {
+                      final configJson = jsonDecode(configResponse.body);
+                      final base_url = configJson['data']['apidomain'];
+
+                      final cid = await SessionManager().get("cid");
+                      final userMenuListUrl = '$base_url/getusermenulist-ax.php?clid=$cid';
+                      final userMenuListResponse = await http.get(Uri.parse(userMenuListUrl));
+                      if (userMenuListResponse.statusCode == 200) {
+                        final userMenuListJson = jsonDecode(userMenuListResponse.body);
+                        final userMenuList = userMenuListJson['data'];
+                        final menuExists = userMenuList.any((menu) => menu['id'] == product);
+                        if (!menuExists) {
+                          // Add the menu to the user's list
+                          final createMenuUrl = '$base_url/reqmenuaccess-ax.php?mid=$product&clid=$cid';
+                          final createMenuResponse = await http.post(Uri.parse(createMenuUrl));
+                          if (createMenuResponse.statusCode == 200) {
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Menu saved successfully!"),
+                            ));
+                          } else {
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Failed to save menu!"),
+                            ));
+                          }
+                        } else {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Menu already exists!"),
+                          ));
+                        }
+                      } else {
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Failed to get user menu list!"),
+                        ));
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
+          )
+
+        });
       }
     }
 
@@ -75,7 +141,68 @@ class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver
         final String? name = queryParameters['name'];
         final String? product = queryParameters['product'];
         if (name != null && product != null) {
-          Get.to(() => MenuDetailPage(name: name, product: product));
+          Get.to(() => MenuDetailPage(name: name, product: product, openedByDeepLink: true,))?.then((value) => {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text("Save Menu?"),
+                content: Text("Do you want to save this menu?"),
+                actions: [
+                  TextButton(
+                    child: Text("No"),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  TextButton(
+                    child: Text("Yes"),
+                    onPressed: () async {
+                      final configResponse = await http
+                          .get(Uri.parse('http://appdata.galacaterers.in/getconfig-ax.php'));
+
+                      if (configResponse.statusCode == 200) {
+                        final configJson = jsonDecode(configResponse.body);
+                        final base_url = configJson['data']['apidomain'];
+
+                        final cid = await SessionManager().get("cid");
+                        final userMenuListUrl = '$base_url/getusermenulist-ax.php?clid=$cid';
+                        final userMenuListResponse = await http.get(Uri.parse(userMenuListUrl));
+                        if (userMenuListResponse.statusCode == 200) {
+                          final userMenuListJson = jsonDecode(userMenuListResponse.body);
+                          final userMenuList = userMenuListJson['data'];
+                          final menuExists = userMenuList.any((menu) => menu['id'] == product);
+                          if (!menuExists) {
+                            // Add the menu to the user's list
+                            final createMenuUrl = '$base_url/reqmenuaccess-ax.php?mid=$product&clid=$cid';
+                            final createMenuResponse = await http.post(Uri.parse(createMenuUrl));
+                            if (createMenuResponse.statusCode == 200) {
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Menu saved successfully!"),
+                              ));
+                            } else {
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text("Failed to save menu!"),
+                              ));
+                            }
+                          } else {
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Menu already exists!"),
+                            ));
+                          }
+                        } else {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Failed to get user menu list!"),
+                          ));
+                        }
+                      }
+                    },
+                  ),
+                ],
+              ),
+            )
+          });
         }
         else{
           print('Link Not Found!');
@@ -94,10 +221,10 @@ class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver
     });
 
     final DynamicLinkParameters parameters = DynamicLinkParameters(
-      uriPrefix: 'https://galacaterers.page.link/',
-      link: Uri.parse('https://galacaterers.page.link/menudetail?name=$name&product=$product'),
+      uriPrefix: 'https://gala.page.link/',
+      link: Uri.parse('https://gala.page.link/menudetail?name=$name&product=$product'),
       androidParameters: const AndroidParameters(
-        packageName: 'com.galacaterers.app_data',
+        packageName: 'in.galacaterers.app_data',
         minimumVersion: 0,
       ),
     );
@@ -152,7 +279,68 @@ class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver
         // Navigate to the appropriate page based on the deep link parameters
         String name = deepLink.queryParameters['name'] ?? '';
         String product = deepLink.queryParameters['product'] ?? '';
-        Get.to(() => MenuDetailPage(name: name, product: product));
+        Get.to(() => MenuDetailPage(name: name, product: product, openedByDeepLink: true,))?.then((value) => {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("Save Menu?"),
+              content: Text("Do you want to save this menu?"),
+              actions: [
+                TextButton(
+                  child: Text("No"),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                TextButton(
+                  child: Text("Yes"),
+                  onPressed: () async {
+                    final configResponse = await http
+                        .get(Uri.parse('http://appdata.galacaterers.in/getconfig-ax.php'));
+
+                    if (configResponse.statusCode == 200) {
+                      final configJson = jsonDecode(configResponse.body);
+                      final base_url = configJson['data']['apidomain'];
+
+                      final cid = await SessionManager().get("cid");
+                      final userMenuListUrl = '$base_url/getusermenulist-ax.php?clid=$cid';
+                      final userMenuListResponse = await http.get(Uri.parse(userMenuListUrl));
+                      if (userMenuListResponse.statusCode == 200) {
+                        final userMenuListJson = jsonDecode(userMenuListResponse.body);
+                        final userMenuList = userMenuListJson['data'];
+                        final menuExists = userMenuList.any((menu) => menu['id'] == product);
+                        if (!menuExists) {
+                          // Add the menu to the user's list
+                          final createMenuUrl = '$base_url/reqmenuaccess-ax.php?mid=$product&clid=$cid';
+                          final createMenuResponse = await http.post(Uri.parse(createMenuUrl));
+                          if (createMenuResponse.statusCode == 200) {
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Menu saved successfully!"),
+                            ));
+                          } else {
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Failed to save menu!"),
+                            ));
+                          }
+                        } else {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Menu already exists!"),
+                          ));
+                        }
+                      } else {
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Failed to get user menu list!"),
+                        ));
+                      }
+                    }
+                  },
+                ),
+              ],
+            ),
+          )
+        });
       }
     }).onError((error) {
       if (kDebugMode) {
@@ -160,20 +348,81 @@ class _SplashScreenState extends State<SplashScreen> with WidgetsBindingObserver
       }
     });
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      final PendingDynamicLinkData? data =
-      await FirebaseDynamicLinks.instance.getInitialLink();
-      final Uri? deepLink = data?.link;
+    final PendingDynamicLinkData? data =
+        await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri? deepLink = data?.link;
 
-      if (deepLink != null) {
-        String? name = deepLink.queryParameters['name'];
-        String? product = deepLink.queryParameters['product'];
+    if (deepLink != null) {
+      String? name = deepLink.queryParameters['name'];
+      String? product = deepLink.queryParameters['product'];
 
-        Get.offNamed('/menudetail', arguments: {
-          'name': name,
-          'product': product,
-        });
-      }
-    });
+      Get.offNamed('/menudetail', arguments: {
+        'name': name,
+        'product': product,
+      })?.then((value) => {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Save Menu?"),
+            content: Text("Do you want to save this menu?"),
+            actions: [
+              TextButton(
+                child: Text("No"),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: Text("Yes"),
+                onPressed: () async {
+                  final configResponse = await http
+                      .get(Uri.parse('http://appdata.galacaterers.in/getconfig-ax.php'));
+
+                  if (configResponse.statusCode == 200) {
+                    final configJson = jsonDecode(configResponse.body);
+                    final base_url = configJson['data']['apidomain'];
+
+                    final cid = await SessionManager().get("cid");
+                    final userMenuListUrl = '$base_url/getusermenulist-ax.php?clid=$cid';
+                    final userMenuListResponse = await http.get(Uri.parse(userMenuListUrl));
+                    if (userMenuListResponse.statusCode == 200) {
+                      final userMenuListJson = jsonDecode(userMenuListResponse.body);
+                      final userMenuList = userMenuListJson['data'];
+                      final menuExists = userMenuList.any((menu) => menu['id'] == product);
+                      if (!menuExists) {
+                        // Add the menu to the user's list
+                        final createMenuUrl = '$base_url/reqmenuaccess-ax.php?mid=$product&clid=$cid';
+                        final createMenuResponse = await http.post(Uri.parse(createMenuUrl));
+                        if (createMenuResponse.statusCode == 200) {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Menu saved successfully!"),
+                          ));
+                        } else {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("Failed to save menu!"),
+                          ));
+                        }
+                      } else {
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Menu already exists!"),
+                        ));
+                      }
+                    } else {
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Failed to get user menu list!"),
+                      ));
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+        )
+      });
+    }
+  });
   }
 
 

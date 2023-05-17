@@ -119,16 +119,12 @@ class _MenuList2State extends State<MenuList2> {
                   children: [
                     Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
                     SizedBox(width: 10.w,),
-                    Text('New Menu', style: TextStyle(color: kblue,fontSize: 20.sp),),
-                    SizedBox(width: 10.w,),
+                    Text('New Menu', style: TextStyle(color: kblue,fontSize: 20.sp),)
                   ],
                 ),
               ),
               SizedBox(height: 5.h,),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Divider(color: kwhite2),
-              ),
+              Divider(color: kblack),
               Expanded(
                 child: Container(//screen decoration
                   //alignment: Alignment.center,
@@ -170,7 +166,8 @@ class _MenuList2State extends State<MenuList2> {
                             return ListView.builder(
                               itemCount: snapshot.data!.data.length,
                               itemBuilder: (context, index) {
-                                return GestureDetector(
+                                return
+                                GestureDetector(
                                   onTap: () async {
                                     //debouncer.run(() {
                                     //await Future.delayed(Duration(milliseconds: 50));
@@ -201,9 +198,9 @@ class _MenuList2State extends State<MenuList2> {
                                           snapshot.data!.data[index].isselected = value ? "1" : "0";
                                           if (value == true) {
                                             print('true');
-                                            _selected_box.add(index);
                                             //selectedProductIds.add(int.parse(snapshot.data!.data[index].id));
                                             futureAddMenuData = fetchAddMenuData(snapshot.data!.data[index].id, widget.prod);
+                                            _selected_box.add(index);
                                             //futureSelectedCreateMenu = fetchSelectedCreateMenu(widget.prod);
                                             /*ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(content: Text("Item Added to Menu!")),
@@ -218,9 +215,9 @@ class _MenuList2State extends State<MenuList2> {
                                           } else {
                                             print('false');
                                             // msnapshot.data!.data[index].isselected == "0" ? "1" : "0";
-                                            _selected_box.remove(index);
                                             //selectedProductIds.remove(int.parse(snapshot.data!.data[index].id));
                                             futureAddMenuData = fetchAddMenuData(snapshot.data!.data[index].id, widget.prod);
+                                            _selected_box.remove(index);
                                             //futureDeleteMenu = fetchDeleteMenu(widget.prod);
                                             //futureSelectedCreateMenu = fetchSelectedCreateMenu(widget.prod);
                                             /*ScaffoldMessenger.of(context).showSnackBar(
@@ -284,8 +281,8 @@ class _MenuList2State extends State<MenuList2> {
 
                           return const Center(
                             child: SizedBox(
-                              height: 50.0,
-                              width: 50.0,
+                              height: 24.0,
+                              width: 24.0,
                               child: CircularProgressIndicator(),
                             ),
                           );

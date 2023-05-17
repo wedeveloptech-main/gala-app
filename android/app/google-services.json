@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "531889683241",
-    "project_id": "deeplinks-b9f4a",
-    "storage_bucket": "deeplinks-b9f4a.appspot.com"
+    "project_number": "962872973335",
+    "project_id": "deeplinking-31ed9",
+    "storage_bucket": "deeplinking-31ed9.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:531889683241:android:e4852243f86d277f4c1538",
+        "mobilesdk_app_id": "1:962872973335:android:1b6790ab4b2404338f6452",
         "android_client_info": {
-          "package_name": "com.galacaterers.app_data"
+          "package_name": "in.galacaterers.app_data"
         }
       },
       "oauth_client": [
         {
-          "client_id": "531889683241-nfk5jbp3sbb5k4svf9im35d3sma33sk9.apps.googleusercontent.com",
+          "client_id": "962872973335-nprm9n0lhe5f2erdn56671p5jd47uf0j.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCEQPTtFu2VXz3xsaivyOkjqp9AHAObxCI"
+          "current_key": "AIzaSyDMtqbN5IvTHWrgWSDIIWcO_8sy945x318"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "531889683241-nfk5jbp3sbb5k4svf9im35d3sma33sk9.apps.googleusercontent.com",
+              "client_id": "962872973335-nprm9n0lhe5f2erdn56671p5jd47uf0j.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

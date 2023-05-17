@@ -27,7 +27,7 @@ class LoginNameScreen extends StatefulWidget {
 class _LoginNameScreenState extends State<LoginNameScreen> {
 
   //form key for validating the form fields
-  final _formKey = GlobalKey<FormState>();
+  final _formKey1 = GlobalKey<FormState>();
   // Create a text controller and use it to retrieve the current value of the TextField.
   Future<LoginData>? futureLoginData;
   final _userNameController = TextEditingController();
@@ -74,7 +74,7 @@ class _LoginNameScreenState extends State<LoginNameScreen> {
     //print(response.body);
 
     if (data['code'] == 1) {
-      if (_formKey.currentState!.validate()) {
+      if (_formKey1.currentState!.validate()) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => HomeScreen(),
@@ -91,7 +91,7 @@ class _LoginNameScreenState extends State<LoginNameScreen> {
       await SessionManager().set("phoneno", data['data']['phoneno'].toString());
       await SessionManager().set("profilestatus", data['data']['profilestatus']);
       await SessionManager().set("password", data['data']['password']);
-      await SessionManager().set("isLogin", true);
+      //await SessionManager().set("isLogin", true);
       //print(temp_id);
 
     }
@@ -120,7 +120,7 @@ class _LoginNameScreenState extends State<LoginNameScreen> {
         await SessionManager().set("name", data['data']['name']);
         await SessionManager().set("profilestatus", data['data']['profilestatus']);
 
-        if (_formKey.currentState!.validate()) {
+        if (_formKey1.currentState!.validate()) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomeScreen()),
                 (route) => false,
@@ -184,7 +184,7 @@ class _LoginNameScreenState extends State<LoginNameScreen> {
                   Container(
                     padding: EdgeInsets.all(28.r),
                     child: Form(
-                      key: _formKey,
+                      key: _formKey1,
                       child: Column(
                         children: [
                           TextFormField(
@@ -247,7 +247,7 @@ class _LoginNameScreenState extends State<LoginNameScreen> {
                             child: TextButton(
                               onPressed: _verifyUserName,
                               /*onPressed: () {
-                                if (_formKey.currentState!.validate()) {
+                                if (_formKey1.currentState!.validate()) {
                                   setState(() {
                                     //futureCreateData = fetchCreateData(_controller.text);
                                     //futureCreateMenu = fetchCreateMenu();

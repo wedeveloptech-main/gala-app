@@ -262,7 +262,6 @@ Future<CreateMenu> fetchCreateMenu() async{
   dynamic cid = await SessionManager().get("cid");
 
   final response = await http
-  //.get(Uri.parse(ApiConstants.base_Url + '/getitemlist-ax.php?ctgid=${prefs.getString("catId")}'));
       .get(Uri.parse('$base_url/getusermenulist-ax.php?clid=$cid'));
 
   if (response.statusCode == 200) {
@@ -333,6 +332,27 @@ Future<CreateData> fetchCreateData(MenuName) async{
     final configJson = jsonDecode(configResponse.body);
     final base_url = configJson['data']['apidomain'];
 
+    dynamic cid = await SessionManager().get("cid");
+
+    final response = await http.get(Uri.parse('$base_url/requsermenu-ax.php?clid=$cid&name=$MenuName'));
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return CreateData.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load data');
+    }
+  } else {
+    throw Exception('Failed to load config');
+  }
+
+  if (configResponse.statusCode == 200) {
+    final configJson = jsonDecode(configResponse.body);
+    final base_url = configJson['data']['apidomain'];
+
 
     dynamic cid = await SessionManager().get("cid");
 
@@ -345,9 +365,9 @@ Future<CreateData> fetchCreateData(MenuName) async{
     // then parse the JSON.
 
     var jsonData = jsonDecode(response.body);
-    if(jsonData.code==1)
+    if (jsonData['code'] == 1) {
       return CreateData.fromJson(jsonData);
-    else{
+    } else {
       throw Exception('Failed to load data');
     }
 
@@ -438,6 +458,27 @@ Future<AddMenuData> fetchRemoveMenuData(MenuId, ProdId) async{
     final configJson = jsonDecode(configResponse.body);
     final base_url = configJson['data']['apidomain'];
 
+    dynamic cid = await SessionManager().get("cid");
+
+    final response = await http.get(Uri.parse('$base_url/reqitemdelete-ax.php?mid=$MenuId&pid=$ProdId'));
+
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return AddMenuData.fromJson(jsonDecode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load data');
+    }
+  } else {
+    throw Exception('Failed to load config');
+  }
+
+  if (configResponse.statusCode == 200) {
+    final configJson = jsonDecode(configResponse.body);
+    final base_url = configJson['data']['apidomain'];
+
   final response = await http
       .get(Uri.parse('$base_url/reqitemdelete-ax.php?mid=$MenuId&pid=$ProdId'));
 
@@ -446,16 +487,21 @@ Future<AddMenuData> fetchRemoveMenuData(MenuId, ProdId) async{
     // then parse the JSON.
 
     var jsonData = jsonDecode(response.body);
-    if(jsonData.code==1)
-      return AddMenuData.fromJson(jsonData);
-    else{
-      throw Exception('Failed to load data');
+    if (jsonData['code'] == 1) {
+      if (jsonData['data'] != '') {
+        return AddMenuData.fromJson(jsonData);
+      } else {
+        // Handle the case where data is empty
+        throw Exception('Failed to load data');
+      }
+    } else {
+      throw Exception('Failed to load data1');
     }
 
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
-    throw Exception('Failed to load data');
+    throw Exception('Failed to load data2');
   }
   } else {
     throw Exception('Failed to load config');
@@ -463,8 +509,7 @@ Future<AddMenuData> fetchRemoveMenuData(MenuId, ProdId) async{
 }
 
 
-Future<AddMenuData> fetchAddMenuData(MenuId, ProdId) async{
-
+Future<AddMenuData> fetchAddMenuData(MenuId, ProdId) async {
   final configResponse = await http
       .get(Uri.parse('http://appdata.galacaterers.in/getconfig-ax.php'));
 
@@ -472,30 +517,55 @@ Future<AddMenuData> fetchAddMenuData(MenuId, ProdId) async{
     final configJson = jsonDecode(configResponse.body);
     final base_url = configJson['data']['apidomain'];
 
-  final response = await http
-      .get(Uri.parse('$base_url/reqitemtomenu-ax.php?mid=$MenuId&pid=$ProdId'));
+    dynamic cid = await SessionManager().get("cid");
 
+    final response = await http.get(Uri.parse('$base_url/reqitemtomenu-ax.php?mid=$MenuId&pid=$ProdId'));
 
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-
-    var jsonData = jsonDecode(response.body);
-    print(jsonData);
-    if(jsonData.code==1)
-      return AddMenuData.fromJson(jsonData);
-    else{
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.
+      return AddMenuData.fromJson(jsonDecode(response.body));
+    } else if (MenuId == 0){
       throw Exception('Failed to load data');
     }
 
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load data');
-  }
+    else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load data');
+    }
   } else {
     throw Exception('Failed to load config');
   }
+
+  /*if (configResponse.statusCode == 200) {
+    final configJson = jsonDecode(configResponse.body);
+    final base_url = configJson['data']['apidomain'];
+
+    final response = await http
+        .get(Uri.parse('$base_url/reqitemtomenu-ax.php?mid=$MenuId&pid=$ProdId'));
+
+
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      print(jsonData);
+      if (jsonData['code'] == 1) {
+        if (jsonData['data'] != '') {
+          return AddMenuData.fromJson(jsonData);
+        } else {
+          // Handle the case where data is empty
+          throw Exception('Failed to load data');
+        }
+      } else {
+        throw Exception('Failed to load data1');
+      }
+    } else {
+      throw Exception('Failed to load data2');
+    }
+  } else {
+    throw Exception('Failed to load config');
+  }*/
 }
 
 Future<HomeMenu> fetchHomeMenu() async{

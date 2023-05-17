@@ -38,102 +38,109 @@ class _OnboardingState extends State<Onboarding> {
           InternetConnectionStatus.disconnected
           ? NoInternet()
           : Scaffold(
-        body: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: contents.length,
-                onPageChanged: (int index) {
-                  setState(() {
-                    currentIndex = index;
-                  });
-                },
-                itemBuilder: (_, i) {
-                  return Padding(
-                    padding: EdgeInsets.only(top: 50.h, left: 40.w, right: 40.w),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 50.h, left: 20.w, right: 20.w),
-                          child: Image.asset(
-                            contents[i].image,
-                            height: 320.h,
-                          ),
-                        ),
-                        Center(
-                          child: Text(
-                            contents[i].title,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 25.sp,
-                              fontWeight: FontWeight.bold,
-                              color: kblue,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20.h),
-                        Center(
-                          child: Text(
-                            contents[i].description,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 22.sp,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 60.h),
-                        Container(
-                          height: 70.h,
-                          width: 1.sw,
-                          child: TextButton(
-                            onPressed: () {
-                              if (currentIndex == contents.length - 1) {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => LoginScreen(),
-                                  ),
-                                );
-                              }
-                              _controller.nextPage(
-                                duration: Duration(milliseconds: 100),
-                                curve: Curves.bounceOut,
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.r),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w,),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _controller,
+                      itemCount: contents.length,
+                      onPageChanged: (int index) {
+                        setState(() {
+                          currentIndex = index;
+                        });
+                      },
+                      itemBuilder: (_, i) {
+                        return Padding(
+                          padding: EdgeInsets.only(top: 50.h, left: 30.w, right: 30.w),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 50.h, left: 20.w, right: 20.w),
+                                child: Image.asset(
+                                  contents[i].image,
+                                  height: 320.h,
+                                ),
                               ),
-                              backgroundColor: kblue),
-                            child: Text(
-                                currentIndex == contents.length - 1 ? "Lets Begin!" : "Next",
-                              style: TextStyle(fontFamily: 'Roboto', fontSize: 20.sp),),
+                              Center(
+                                child: Text(
+                                  contents[i].title,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 25.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: kblue,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 20.h),
+                              Center(
+                                child: Text(
+                                  contents[i].description,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 22.sp,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 60.h),
+                              Container(
+                                height: 70.h,
+                                width: 1.sw,
+                                child: TextButton(
+                                  onPressed: () {
+                                    if (currentIndex == contents.length - 1) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => LoginScreen(),
+                                        ),
+                                      );
+                                    }
+                                    _controller.nextPage(
+                                      duration: Duration(milliseconds: 100),
+                                      curve: Curves.bounceOut,
+                                    );
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.r),
+                                    ),
+                                    backgroundColor: kblue),
+                                  child: Text(
+                                      currentIndex == contents.length - 1 ? "Lets Begin!" : "Next",
+                                    style: TextStyle(fontFamily: 'Roboto', fontSize: 20.sp),),
 
-                          ),
-                        ),
-                        SizedBox(height: 30.h),
-                        Container(
-                          margin: EdgeInsets.only(bottom: 30.r),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              for (int i = 0; i < contents.length; i++)
-                                if (i == currentIndex) ...[circleBar(true)] else
-                                  circleBar(false),
+                                ),
+                              ),
+                              SizedBox(height: 30.h),
+                              Container(
+                                margin: EdgeInsets.only(bottom: 30.r),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    for (int i = 0; i < contents.length; i++)
+                                      if (i == currentIndex) ...[circleBar(true)] else
+                                        circleBar(false),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

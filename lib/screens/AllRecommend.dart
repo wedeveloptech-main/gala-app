@@ -14,7 +14,6 @@ import 'package:myapp/Models/newAddModel.dart';
 import 'package:myapp/constants/NoInternet.dart';
 import 'package:myapp/constants/color.dart';
 import 'package:myapp/screens/HomeScreen/SearchPage.dart';
-import 'package:myapp/screens/HomeScreen/components/MenuList.dart';
 import 'package:myapp/screens/ScrollPage.dart';
 import 'package:myapp/services/api_service.dart';
 import 'package:path_provider/path_provider.dart';
@@ -24,6 +23,11 @@ import 'package:sliding_sheet/sliding_sheet.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
 
+import '../Models/AddMenuData.dart';
+import '../Models/CreateData.dart';
+import '../Models/CreateMenu.dart';
+import '../Models/SelectedCreateMenu.dart';
+import '../constants/ListTile1.dart';
 import 'HomeScreen/components/MenuList2.dart';
 
 
@@ -54,12 +58,22 @@ class _AllRecommendState extends State<AllRecommend> {
   late PageController _pageController;
   int _activeImageIndex = 0;
   int _currentIndex = 0;
+  late Future<CreateMenu> futureCreateMenu;
+  Future<CreateData>? futureCreateData;
+  Future<AddMenuData>? futureAddMenuData;
+
+  final TextEditingController _controller = TextEditingController();
+
+  final formKey = GlobalKey<FormState>();
 
 
   @override
   void initState() {
     super.initState();
     futureRecom = fetchRecom();
+    futureCreateMenu = fetchCreateMenu();
+    futureAddMenuData = fetchAddMenuData(_controller.text, String);
+    futureCreateData = fetchCreateData(_controller.text);
     _pageController =
         PageController(initialPage: 0, keepPage: true, viewportFraction: 1);
     _pageController.addListener(() {
@@ -171,7 +185,7 @@ class _AllRecommendState extends State<AllRecommend> {
 
                             // Calculate the spacing based on the screen width
                             final spacing = screenWidth * 0.02;
-                            final childAspectRatio = screenHeight > 800 ? 1.06 : 1.18;
+                            final childAspectRatio = screenWidth / 390.h;
                             return
                               GridView.builder(
                                 //itemCount: image.length,
@@ -183,6 +197,7 @@ class _AllRecommendState extends State<AllRecommend> {
                                   childAspectRatio: childAspectRatio.toDouble(),
                                 ),
                                 itemBuilder: (BuildContext context, int index) {
+                                  final prod = snapshot.data!.data[index].prodId;
                                   return GestureDetector(
                                     onTap: () {
                                       setState(() {
@@ -336,72 +351,269 @@ class _AllRecommendState extends State<AllRecommend> {
                                                               ),
                                                             ),
                                                             SizedBox(height: 16.h,),
-                                                            Padding(
-                                                              padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                                              child: Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                mainAxisSize: MainAxisSize.min,
-                                                                children: <Widget>[
-                                                                  SizedBox(height: 5.h,),
-                                                                  TextButton(
-                                                                    onPressed: (){
-                                                                      showModalBottomSheet(
-                                                                        backgroundColor: Colors.transparent,
-                                                                        isScrollControlled: true,
-                                                                        context: context,
-                                                                        builder: (BuildContext context) {
-                                                                          return Container(
-                                                                            height: MediaQuery.of(context).size.height * 0.7,
-                                                                            decoration: BoxDecoration(
-                                                                              color: Colors.white,
-                                                                              borderRadius:  BorderRadius.only(
-                                                                                topLeft: Radius.circular(25.r),
-                                                                                topRight: Radius.circular(25.r),
+                                                            Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              children: <Widget>[
+                                                                SizedBox(height: 5.h,),
+                                                                TextButton(
+                                                                  onPressed: () async {
+                                                                    final menuId = await fetchCreateMenu();
+                                                                    showModalBottomSheet(
+                                                                      backgroundColor: Colors.transparent,
+                                                                      isScrollControlled: true,
+                                                                      context: context,
+                                                                      builder: (BuildContext context) {
+                                                                        return Container(
+                                                                          height: MediaQuery.of(context).size.height * 0.7,
+                                                                          decoration: BoxDecoration(
+                                                                            color: Colors.white,
+                                                                            borderRadius:  BorderRadius.only(
+                                                                              topLeft: Radius.circular(25.r),
+                                                                              topRight: Radius.circular(25.r),
+                                                                            ),
+                                                                          ),
+                                                                          child:
+                                                                          Padding(
+                                                                            padding: EdgeInsets.all(10.r),
+                                                                            child: Container(
+                                                                              width: double.infinity,
+                                                                              //padding: const EdgeInsets.only(bottom: 44),
+                                                                              decoration: BoxDecoration(
+                                                                                color: Colors.white,
+                                                                                borderRadius: BorderRadius.only(
+                                                                                  topLeft: Radius.circular(20.r),
+                                                                                  topRight: Radius.circular(20.r),
+                                                                                ),
+                                                                              ),
+                                                                              child: Column(
+                                                                                children: [
+                                                                                  Column(
+                                                                                    mainAxisSize: MainAxisSize.min,
+                                                                                    children: <Widget>[
+                                                                                      SizedBox(height: 6.h,),
+                                                                                      Center(
+                                                                                        child: Container(
+                                                                                          decoration: BoxDecoration(
+                                                                                              borderRadius: BorderRadius.circular(20.r),
+                                                                                              color: kblue
+                                                                                          ),
+                                                                                          width: 100.w,
+                                                                                          height: 5.h,
+                                                                                        ),
+                                                                                      ),
+                                                                                      SizedBox(height: 16.h,),
+                                                                                    ],
+                                                                                  ),
+                                                                                  SizedBox(height: 5.h,),
+                                                                                  GestureDetector(
+                                                                                    onTap: (){
+                                                                                      addNewMenuItem(context);
+                                                                                    },
+                                                                                    child: Row(
+                                                                                      mainAxisAlignment: MainAxisAlignment.end,
+                                                                                      children: [
+                                                                                        Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
+                                                                                        SizedBox(width: 10.w,),
+                                                                                        Text('New Menu', style: TextStyle(color: kblue,fontSize: 20.sp),)
+                                                                                      ],
+                                                                                    ),
+                                                                                  ),
+                                                                                  SizedBox(height: 5.h,),
+                                                                                  Divider(color: kblack),
+                                                                                  Expanded(
+                                                                                    child: Container(//screen decoration
+                                                                                      //alignment: Alignment.center,
+                                                                                      width: double.infinity,
+                                                                                      //padding: const EdgeInsets.only(bottom: 44),
+                                                                                      decoration: BoxDecoration(
+                                                                                        color: Colors.white,
+                                                                                        borderRadius: BorderRadius.only(
+                                                                                          topLeft: Radius.circular(20.r),
+                                                                                          topRight: Radius.circular(20.r),
+                                                                                        ),
+                                                                                      ),
+                                                                                      //use a listenable builder, it will make sure it builds whenever needed
+                                                                                      child: (futureCreateMenu == null)
+                                                                                          ? Column(
+                                                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                                                        children: [
+                                                                                          //cartHeadWidget("0"),
+                                                                                          Container(
+                                                                                            //padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                                                                                            child: Center(
+                                                                                              child: Text(
+                                                                                                "Create New Menu",
+                                                                                                style: TextStyle(color: Colors.black54, fontSize: 30.sp, fontWeight: FontWeight.bold,
+                                                                                                ),),
+                                                                                            ),
+                                                                                          ),
+                                                                                        ],
+                                                                                      )
+                                                                                          : RefreshIndicator(
+                                                                                        onRefresh: () {
+                                                                                          setState(() {});
+                                                                                          return fetchCreateMenu();
+                                                                                        },
+                                                                                        child: FutureBuilder<SelectedCreateMenu>(
+                                                                                          future: fetchSelectedCreateMenu(prod),
+                                                                                          builder: (context, snapshot) {
+                                                                                            if (snapshot.hasData && snapshot.data!.data.isNotEmpty) {
+                                                                                              return ListView.builder(
+                                                                                                itemCount: snapshot.data!.data.length,
+                                                                                                itemBuilder: (context, index) {
+                                                                                                  return ListTile1(model: snapshot.data!.data[index], prod:prod);
+                                                                                                  /*return CheckboxListTile(
+                                                                                                      title: Text(
+                                                                                                        snapshot.data!.data[index].name,
+                                                                                                        maxLines: 1,
+                                                                                                        overflow: TextOverflow.ellipsis,
+                                                                                                        style: TextStyle(
+                                                                                                          color: kblue,
+                                                                                                          fontSize: 20.sp,
+                                                                                                          fontWeight: FontWeight.bold,
+                                                                                                        ),
+                                                                                                      ),
+                                                                                                      activeColor: kblue,
+                                                                                                      value: snapshot.data!.data[index].isselected == "1",
+                                                                                                      onChanged: (bool? value) async {
+                                                                                                        //print('Checked');
+                                                                                                        if (value != null) {
+                                                                                                          setState(() {
+                                                                                                            snapshot.data!.data[index].isselected = value ? "1" : "0";
+                                                                                                            if (value) {
+                                                                                                              print('true');
+                                                                                                              futureAddMenuData = fetchAddMenuData(
+                                                                                                                  snapshot.data!.data[index].id, prod);
+                                                                                                              _selected_box.add(index);
+                                                                                                              Fluttertoast.showToast(
+                                                                                                                msg: "Item Added to Menu!",
+                                                                                                                toastLength: Toast.LENGTH_SHORT,
+                                                                                                                gravity: ToastGravity.BOTTOM,
+                                                                                                                backgroundColor: Colors.black54,
+                                                                                                                textColor: Colors.white,
+                                                                                                              );
+                                                                                                            } else {
+                                                                                                              print('false');
+                                                                                                              futureAddMenuData = fetchAddMenuData(
+                                                                                                                  snapshot.data!.data[index].id, prod);
+                                                                                                              _selected_box.remove(index);
+                                                                                                              print(index);
+                                                                                                              Fluttertoast.showToast(
+                                                                                                                msg: "Item Removed from Menu!",
+                                                                                                                toastLength: Toast.LENGTH_SHORT,
+                                                                                                                gravity: ToastGravity.BOTTOM,
+                                                                                                                backgroundColor: Colors.black54,
+                                                                                                                textColor: Colors.white,
+                                                                                                              );
+                                                                                                            }
+                                                                                                          });
+                                                                                                        }
+                                                                                                      },
+                                                                                                      contentPadding: EdgeInsets.zero,
+                                                                                                      controlAffinity: ListTileControlAffinity.leading,
+                                                                                                    );*/
+                                                                                                },
+                                                                                              );
+                                                                                            }
+                                                                                            else if (snapshot.hasError) {
+                                                                                              return Column(
+                                                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                                                children: [
+                                                                                                  //cartHeadWidget("0"),
+                                                                                                  Container(
+                                                                                                    //padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                                                                                                    child: Center(
+                                                                                                      child: Text(
+                                                                                                        "No Data Found!",
+                                                                                                        style: TextStyle(color: Colors.black54, fontSize: 20.sp, fontWeight: FontWeight.bold,
+                                                                                                        ),),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ],
+                                                                                              );
+                                                                                            }
+
+                                                                                            else if (snapshot.hasData && snapshot.data!.data.isEmpty) {
+                                                                                              return Column(
+                                                                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                                                                children: [
+                                                                                                  //cartHeadWidget("0"),
+                                                                                                  Container(
+                                                                                                    //padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                                                                                                    child: Center(
+                                                                                                      child: Text(
+                                                                                                        "Create New Menu",
+                                                                                                        style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold,
+                                                                                                        ),),
+                                                                                                    ),
+                                                                                                  ),
+                                                                                                ],
+                                                                                              );
+                                                                                            }
+
+                                                                                            return const Center(
+                                                                                              child: SizedBox(
+                                                                                                height: 24.0,
+                                                                                                width: 24.0,
+                                                                                                child: CircularProgressIndicator(),
+                                                                                              ),
+                                                                                            );
+                                                                                          },
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+
+
+                                                                                  ),
+                                                                                ],
                                                                               ),
                                                                             ),
-                                                                            child: Center(
-                                                                              child: MenuList2(
-                                                                                prod: snapshot.data!.data[index].prodId.toString(),
-                                                                              ),
+                                                                          ),
+                                                                          /*child: Center(
+                                                                            child: MenuList2(
+                                                                              prod: snapshot.data!.data[index].prodId.toString(),
                                                                             ),
-                                                                          );
-                                                                        },
-                                                                      );
-                                                                    },
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
-                                                                        SizedBox(width: 15.w,),
-                                                                        Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                      ],
-                                                                    ),
+                                                                          ),*/
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                  },
+                                                                  child: Row(
+                                                                    children: [
+                                                                      SizedBox(width: 10.w,),
+                                                                      Image.asset("assets/images/AddToMenu.png", height: 20.h, width: 20.w,),
+                                                                      SizedBox(width: 15.w,),
+                                                                      Text('Add to Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                    ],
                                                                   ),
-                                                                  Divider(height: 5.h, color: kwhite2,),
-                                                                  TextButton(
-                                                                    onPressed: () async{
-                                                                      final urlImage = snapshot.data!.data[index].thumb.toString();
-                                                                      final url = Uri.parse(urlImage);
-                                                                      final response = await http.get(url);
-                                                                      final bytes = response.bodyBytes;
+                                                                ),
+                                                                Divider(height: 5.h, color: Colors.black45,),
+                                                                TextButton(
+                                                                  onPressed: () async{
+                                                                    final urlImage = snapshot.data!.data[index].thumb.toString();
+                                                                    final url = Uri.parse(urlImage);
+                                                                    final response = await http.get(url);
+                                                                    final bytes = response.bodyBytes;
 
-                                                                      final temp = await getTemporaryDirectory();
-                                                                      final path = '${temp.path}/image.jpg';
-                                                                      File(path).writeAsBytesSync(bytes);
+                                                                    final temp = await getTemporaryDirectory();
+                                                                    final path = '${temp.path}/image.jpg';
+                                                                    File(path).writeAsBytesSync(bytes);
 
-                                                                      await Share.shareFiles([path], text: snapshot.data!.data[index].prodName);
-                                                                      //await Share.share([path], subject: snapshot.data!.data[index].prodName);
-                                                                    },
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
-                                                                        SizedBox(width: 15.w,),
-                                                                        Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                      ],
-                                                                    ),
+                                                                    await Share.shareFiles([path], text: snapshot.data!.data[index].prodName);
+                                                                    //await Share.share([path], subject: snapshot.data!.data[index].prodName);
+                                                                  },
+                                                                  child: Row(
+                                                                    children: [
+                                                                      SizedBox(width: 10.w,),
+                                                                      Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
+                                                                      SizedBox(width: 15.w,),
+                                                                      Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                    ],
                                                                   ),
-                                                                  SizedBox(height: 20.h,),
-                                                                ],
-                                                              ),
+                                                                ),
+                                                                SizedBox(height: 20.h,),
+                                                              ],
                                                             ),
                                                           ],
                                                         ),
@@ -454,8 +666,8 @@ class _AllRecommendState extends State<AllRecommend> {
                           // By default, show a loading spinner.
                           return const Center(
                             child: SizedBox(
-                              height: 50.0,
-                              width: 50.0,
+                              height: 24.0,
+                              width: 24.0,
                               child: CircularProgressIndicator(),
                             ),
                           );
@@ -606,5 +818,101 @@ class _AllRecommendState extends State<AllRecommend> {
       ),
     ),
   );
+
+  void addNewMenuItem(BuildContext context){
+    showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            title: Text("New Menu", style: TextStyle(fontSize: 20.sp),),
+            content: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, //the dialog takes only size it needs
+                  children: [
+                    TextFormField(
+                      controller: _controller,
+                      textCapitalization: TextCapitalization.words,
+                      autocorrect: true,
+                      onChanged: (value) {},
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Value is required';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Enter New Menu',
+                        hintStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+                        fillColor: Colors.white,
+                        filled: true,
+                        //enabledBorder: InputBorder.none,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: kgrey,),
+                          //borderRadius: BorderRadius.circular(50.0),
+                        ),
+                        //focusedBorder: InputBorder.none
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: kgrey,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                        ),
+                        contentPadding: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
+                      ),
+                    ),
+                    /*TextFormField(
+                                                              controller: _contactController, //will help get the field value on submit
+                                                              decoration: const InputDecoration(
+                                                                //border: OutlineInputBorder(),
+                                                                labelText: 'User Name',
+                                                              ),
+                                                              //validator on submit, must return null when every thing ok
+                                                              // The validator receives the text that the user has entered.
+                                                              validator: (value){
+                                                                if(value == null || value.isEmpty){
+                                                                  return 'Value is required!';}
+                                                                else if(value.trim().isEmpty){
+                                                                  return "Value is required!";
+                                                                }
+                                                                return null;
+                                                              },
+                                                            ),*/
+                  ],
+                )
+            ),
+            actions: [
+              TextButton(
+                child: const Text("Cancel"),
+                onPressed: (){
+                  //    showToast(context, "Canceled");  //toast a cancelled sms
+                  Navigator.of(context).pop(); // dismiss dialog
+                },
+              ),
+
+              TextButton(
+                child: const Text("Create"),
+                onPressed: (){
+                  if (formKey.currentState!.validate()) {
+                    setState(() {
+                      futureCreateData = fetchCreateData(_controller.text);
+                      futureCreateMenu = fetchCreateMenu();
+                      //futureSelectedCreateMenu = fetchSelectedCreateMenu(widget.prod);
+                    });
+                    _controller.clear(); //clear text in field
+                    //_countController.clear(); //clear the field
+                    Navigator.of(context).pop(); // dismiss dialog
+
+
+                  }
+                },
+
+              ),
+
+            ],
+          );
+        });
+  }
 }
 

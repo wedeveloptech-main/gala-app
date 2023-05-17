@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _checkVersion() async {
     final newVersion = NewVersion(
-      androidId: "com.example.myapp",
+      androidId: "in.galacaterers.app_data",
     );
     final status = await newVersion.getVersionStatus();
     if (status != null) {

@@ -9,6 +9,7 @@ import 'package:myapp/screens/HomeScreen/homeScreen.dart';
 import 'package:myapp/screens/onBoard/onboarding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constants/NoInternet.dart';
 import 'login/Login.dart';
 
 class SplashScreen2 extends StatefulWidget {
@@ -34,24 +35,45 @@ class _SplashScreen2State extends State<SplashScreen2> {
   }*/
 
   Future<Widget> determineScreen() async {
-    try {
+    /*try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool? isFirstTime = prefs.getBool('first_time');
       bool isLoggedIn = await SessionManager().get("isLogin") ?? false;
 
-      if (isFirstTime != null && !isFirstTime) {
+      if (isLoggedIn) {
+        return HomeScreen();
+      } else {
+        if (isFirstTime == null || isFirstTime) {
+          await prefs.setBool('first_time', false); // update the flag to indicate that onboarding has been completed
+          return Onboarding();
+        } else {
+          return LoginScreen();
+        }
+      }
+    } catch (e) {
+      print("Error determining screen: $e");
+      return LoginScreen();
+    }*/
+    try {
+      //bool seen = await sessionManager.getBool("seen") ?? false;
+      //bool isLoggedIn = await sessionManager.getBool("isLogin") ?? false;
+      bool seen = await SessionManager().get("seen") ?? false;
+      bool isLoggedIn = await SessionManager().get("isLogin") ?? false;
+
+      if (seen) {
         if (isLoggedIn) {
           return HomeScreen();
         } else {
           return LoginScreen();
         }
       } else {
-        await prefs.setBool('first_time', false);
+        await SessionManager().set("seen", true);
         return Onboarding();
       }
     } catch (e) {
       print("Error determining screen: $e");
-      return LoginScreen();
+      //return LoginScreen();
+      return NoInternet();
     }
   }
 
@@ -112,7 +134,7 @@ class _SplashScreen2State extends State<SplashScreen2> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/SplashScreen2.png'),
+              image: AssetImage('assets/images/SplashScreen2.png',),
               fit: BoxFit.cover
             )
           ),
@@ -122,39 +144,3 @@ class _SplashScreen2State extends State<SplashScreen2> {
   }
 }
 
-class OnboardScreen extends StatefulWidget {
-  @override
-  _OnboardScreenState createState() => _OnboardScreenState();
-}
-
-class _OnboardScreenState extends State<OnboardScreen> {
-  bool _seenOnboard = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkIfSeenOnboard();
-  }
-
-  Future<void> _checkIfSeenOnboard() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool seen = prefs.getBool('seenOnboard') ?? false;
-    setState(() {
-      _seenOnboard = seen;
-    });
-  }
-
-  Future<void> _setSeenOnboard() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('seenOnboard', true);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_seenOnboard) {
-      return Onboarding();
-    } else {
-      return HomeScreen();
-    }
-  }
-}

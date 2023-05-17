@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await SessionManager().set("name", data['data']['name']);
       await SessionManager().set("phoneno", data['data']['phoneno']);
       await SessionManager().set("profilestatus", data['data']['profilestatus']);
-      await SessionManager().set("isLogin", true);
+      //await SessionManager().set("isLogin", true);
       //dynamic temp_id = await SessionManager().get("cid");
       //print(temp_id);
     }
@@ -305,7 +305,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                             await SessionManager().set("name", data['data']['name']);
                                             await SessionManager().set("phoneno", data['data']['phoneno'].toString());
                                             await SessionManager().set("password", data['data']['password']);
-                                            await SessionManager().set("isLogin", true);
                                           }
                                         } else {
                                           throw Exception('Failed to load config');

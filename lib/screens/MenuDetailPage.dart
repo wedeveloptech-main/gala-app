@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_session_manager/flutter_session_manager.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -25,13 +27,15 @@ import 'package:http/http.dart' as http;
 
 import '../constants/NoInternet.dart';
 import 'HomeScreen/components/CategoryPage2.dart';
+import 'HomeScreen/homeScreen.dart';
 import 'MaintananceMode.dart';
 
 class MenuDetailPage extends StatefulWidget {
   final String name;
   final String product;
+  final bool openedByDeepLink;
 
-  const MenuDetailPage({Key? key, required this.name, required this.product,}) : super(key: key);
+  const MenuDetailPage({Key? key, required this.name, required this.product, required this.openedByDeepLink}) : super(key: key);
 
   @override
   State<MenuDetailPage> createState() => _MenuDetailPageState();
@@ -45,8 +49,68 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
   bool _isMaintenanceMode = false;
   String _maintenanceMsg = '';
 
+
+  /*Future<String> createDynamicLink() async {
+
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: 'https://galacaterers.page.link',
+      link: Uri.parse('https://galacaterers.page.link/menudetails?name=TMenu&product=48'),
+      androidParameters: AndroidParameters(
+        packageName: "com.galacaterers.app_data",
+        minimumVersion: 0,
+        fallbackUrl: Uri.parse('https://galacaterers.page.link/menudetails?name=TMenu&product=48'),
+      ),
+      socialMetaTagParameters: SocialMetaTagParameters(
+        title: 'Gala Caterers',
+        description: 'Your App Description',
+        //imageUrl: Uri.parse('https://your-app-url.com/your-image.jpg'),
+      ),
+    );
+
+    final ShortDynamicLink shortLink = await FirebaseDynamicLinks.instance.buildShortLink(parameters);
+    final Uri shortUrl = shortLink.shortUrl;
+
+    print(shortUrl);
+
+    return shortUrl.toString();
+  }*/
+
+  /*final DynamicLinkParameters parameters = DynamicLinkParameters(
+    uriPrefix: 'https://galacaterer.page.link',
+    link: Uri.parse('https://galacaterer.page.link/menudetails?name=sangeet&product=60'),
+    androidParameters: AndroidParameters(
+      packageName: 'com.galacaterers.app_data',
+    ),
+    socialMetaTagParameters: SocialMetaTagParameters(
+      title: 'Your App Title',
+      description: 'Your App Description',
+      //imageUrl: Uri.parse('https://your-app-url.com/your-image.jpg'),
+    ),
+  );*/
+  /*Future<void> generateDynamicLink() async {
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: 'https://galacaterer.page.link',
+      link: Uri.parse('https://galacaterer.page.link/menudetails?name=${Uri.encodeComponent(widget.name)}&product=${Uri.encodeComponent(widget.product)}'),
+      androidParameters: AndroidParameters(
+        packageName: 'com.galacaterers.app_data',
+      ),
+      socialMetaTagParameters: SocialMetaTagParameters(
+        title: 'Your App Title',
+        description: 'Your App Description',
+        //imageUrl: Uri.parse('https://your-app-url.com/your-image.jpg'),
+      ),
+    );
+    final ShortDynamicLink shortLink = await FirebaseDynamicLinks.instance.buildShortLink(parameters);
+    final Uri shortUrl = shortLink.shortUrl;
+    print(shortUrl);// The shortened dynamic link URL
+
+    //final Uri dynamicUrl = await parameters.buildUrl();
+    // Use the dynamicUrl as needed
+  }*/
+
   late String _linkMessage;
   bool _isCreatingLink = false;
+  bool _showDialogs = false;
 
   FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
   final String _testString =
@@ -55,10 +119,10 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
       'is properly setup. Look at firebase_dynamic_links/README.md for more '
       'details.';
 
-  final String DynamicLink = 'https://galacaterers.page.link/menudetail?name=<name>&product=<product>';
-  final String Link = 'https://galacaterers.page.link/category';
+  final String DynamicLink = 'https://gala.page.link/menudetail?name=<name>&product=<product>';
+  final String Link = 'https://gala.page.link/category';
 
-  Future<void> initDynamicLinks() async {
+  Future<void> initDynamicLinks(BuildContext context) async {
     final PendingDynamicLinkData? data = await dynamicLinks.getInitialLink();
     final Uri? deepLink = data?.link;
     if (deepLink != null) {
@@ -66,7 +130,30 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
       final String? name = queryParameters['name'];
       final String? product = queryParameters['product'];
       if (name != null && product != null) {
-        Get.off(() => MenuDetailPage(name: name, product: product));
+        Get.off(() => MenuDetailPage(name: name, product: product, openedByDeepLink: true,))?.then((value) => {
+          /*showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Save Menu?"),
+                content: Text("Do you want to save this menu?"),
+                actions: [
+                  TextButton(
+                    child: Text("No"),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  TextButton(
+                    child: Text("Yes"),
+                    onPressed: () async {
+                      // Your dialog box code here
+                    },
+                  ),
+                ],
+              );
+            },
+          ),*/
+        //_showDialog(context)
+        });
       }
     }
 
@@ -77,7 +164,11 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
         final String? name = queryParameters['name'];
         final String? product = queryParameters['product'];
         if (name != null && product != null) {
-          Get.off(() => MenuDetailPage(name: name, product: product));
+          Get.off(() => MenuDetailPage(name: name, product: product, openedByDeepLink: true,))?.then((value) => {
+            if (name != null && product != null) {
+              //_showDialog(context)
+            }
+          });
         }
       }
     }).onError((error) {
@@ -93,10 +184,10 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
     });
 
     final DynamicLinkParameters parameters = DynamicLinkParameters(
-      uriPrefix: 'https://galacaterers.page.link/',
-      link: Uri.parse('https://galacaterers.page.link/menudetail?name=$name&product=$product'),
+      uriPrefix: 'https://gala.page.link/',
+      link: Uri.parse('https://gala.page.link/menudetail?name=$name&product=$product'),
       androidParameters: const AndroidParameters(
-        packageName: 'com.galacaterers.app_data',
+        packageName: 'in.galacaterers.app_data',
         minimumVersion: 0,
       ),
     );
@@ -118,6 +209,103 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
     });
   }
 
+  void _showDialog(BuildContext context) {
+    if(widget.openedByDeepLink){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Save Menu?"),
+            content: Text("Do you really want to save this menu?"),
+            actions: [
+              TextButton(
+                child: Text("No"),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: Text("Yes"),
+                onPressed: () async {
+                  final configResponse = await http
+                      .get(Uri.parse('http://appdata.galacaterers.in/getconfig-ax.php'));
+
+                  if (configResponse.statusCode == 200) {
+                    final configJson = jsonDecode(configResponse.body);
+                    final base_url = configJson['data']['apidomain'];
+
+                    final cid = await SessionManager().get("cid");
+                    final product = widget.product;
+                    final userMenuListUrl = '$base_url/getusermenulist-ax.php?clid=$cid';
+                    final userMenuListResponse = await http.get(Uri.parse(userMenuListUrl));
+                    if (userMenuListResponse.statusCode == 200) {
+                      final userMenuListJson = jsonDecode(userMenuListResponse.body);
+                      final userMenuList = userMenuListJson['data'];
+                      final menuExists = userMenuList.any((menu) => menu['id'] == product);
+                      if (!menuExists) {
+                        // Add the menu to the user's list
+                        final createMenuUrl = '$base_url/reqmenuaccess-ax.php?mid=$product&clid=$cid';
+                        final createMenuResponse = await http.post(Uri.parse(createMenuUrl));
+                        if (createMenuResponse.statusCode == 200) {
+                          Navigator.of(context).pop();
+                          /*ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Menu saved successfully!"),
+                        ));*/
+                          Fluttertoast.showToast(
+                            msg: "Menu saved successfully!", // your toast message
+                            toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                            gravity: ToastGravity.BOTTOM, // toast gravity
+                            backgroundColor: Colors.black54, // background color of the toast
+                            textColor: Colors.white, // text color of the toast
+                          );
+                        } else {
+                          Navigator.of(context).pop();
+                          /*ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("Failed to save menu!"),
+                        ));*/
+                          Fluttertoast.showToast(
+                            msg: "Failed to save menu!", // your toast message
+                            toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                            gravity: ToastGravity.BOTTOM, // toast gravity
+                            backgroundColor: Colors.black54, // background color of the toast
+                            textColor: Colors.white, // text color of the toast
+                          );
+                        }
+                      } else {
+                        Navigator.of(context).pop();
+                        /*ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Menu already exists!"),
+                      ));*/
+                        Fluttertoast.showToast(
+                          msg: "Menu already exists!", // your toast message
+                          toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                          gravity: ToastGravity.BOTTOM, // toast gravity
+                          backgroundColor: Colors.black54, // background color of the toast
+                          textColor: Colors.white, // text color of the toast
+                        );
+                      }
+                    } else {
+                      Navigator.of(context).pop();
+                      /*ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Failed to get user menu list!"),
+                    ));*/
+                      Fluttertoast.showToast(
+                        msg: "Failed to get user menu list!", // your toast message
+                        toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                        gravity: ToastGravity.BOTTOM, // toast gravity
+                        backgroundColor: Colors.black54, // background color of the toast
+                        textColor: Colors.white, // text color of the toast
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+  }
+
   @override
   void initState() {
     super.initState();
@@ -125,7 +313,7 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
     //futureDeleteMenu = fetchDeleteMenu(widget.product);
     futureRemoveMenuData = fetchRemoveMenuData(widget.product, String);
     _checkMaintenanceMode();
-    initDynamicLinks();
+    initDynamicLinks(context);
     FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
       final Uri? deepLink = dynamicLinkData?.link;
 
@@ -133,7 +321,9 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
         // Navigate to the appropriate page based on the deep link parameters
         String name = deepLink.queryParameters['name'] ?? '';
         String product = deepLink.queryParameters['product'] ?? '';
-        Get.to(() => MenuDetailPage(name: name, product: product));
+        Get.to(() => MenuDetailPage(name: name, product: product, openedByDeepLink: true,))?.then((value) => {
+
+        });
       }
       else{
         print('Link Not Found!');
@@ -143,24 +333,36 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
         print('error.message');
       }
     });
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      final PendingDynamicLinkData? data =
-      await FirebaseDynamicLinks.instance.getInitialLink();
-      final Uri? deepLink = data?.link;
-
-      if (deepLink != null) {
-        String? name = deepLink.queryParameters['name'];
-        String? product = deepLink.queryParameters['product'];
-
-        Get.offNamed('/menudetail', arguments: {
-          'name': name,
-          'product': product,
-        });
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (widget.openedByDeepLink) {
+        _showDialogs = true;
       }
+      //_showDialog(context);
     });
-
   }
 
+  /*void initDynamicLinks(BuildContext context) async {
+    FirebaseDynamicLinks.instance.onLink(
+        onSuccess: (PendingDynamicLinkData dynamicLink) async {
+          final Uri deepLink = dynamicLink?.link;
+
+          if (deepLink != null) {
+            Navigator.pushNamed(context, deepLink.path);
+          }
+        },
+        onError: (OnLinkErrorException e) async {
+          print('onLinkError');
+          print(e.message);
+        }
+    );
+
+    final PendingDynamicLinkData? data = await FirebaseDynamicLinks.instance.getInitialLink();
+    final Uri? deepLink = data?.link;
+
+    if (deepLink != null) {
+      Navigator.pushNamed(context, deepLink.path);
+    }
+  }*/
 
   Future<void> _checkMaintenanceMode() async {
     try {
@@ -278,7 +480,9 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   InkWell(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => widget.openedByDeepLink
+                        ? Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => HomeScreen(),),(route) => false)
+                        : Navigator.pop(context),
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 10.h),
                       child: Row(
@@ -287,7 +491,7 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
                             color: kwhite, size: 15.r,),
                           SizedBox(width: 10.w,),
                           Text('Back',
-                            style: TextStyle(color: kwhite, fontSize: 15.sp),)
+                            style: TextStyle(color: kwhite, fontSize: 15.sp),),
                         ],
                       ),
                     ),
@@ -351,105 +555,131 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
 
-                        return ListView.builder(
-                          padding: EdgeInsets.symmetric(vertical: 10.h),
-                          itemCount: snapshot.data!.data.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            if (snapshot.data!.data[index].ctgId.isEmpty &&
-                                snapshot.data!.data[index].name.isEmpty) {
-                              return SizedBox.shrink();
-                            }
-
-                            else {
-                              return Column(
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 15.w),
-                                    child: InkWell(
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .spaceBetween,
-                                        children: [
-                                          Text(
-                                            snapshot.data!.data[index].name,
-                                            style: TextStyle(
-                                              fontSize: 20.sp,
-                                              color: kblue,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Icon(
-                                            snapshot.data!.data[index].ctgId
-                                                .isNotEmpty &&
-                                                snapshot.data!.data[index].name
-                                                    .isNotEmpty
-                                                ? Icons.arrow_forward_ios
-                                                : null,
-                                            color: kblue,
-                                            size: 20.r,
-                                          ),
-                                        ],
-                                      ),
-                                      onTap: () =>
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    CatMenuList2(
-                                                      //category: AllCatList.fromJson(data!.data[index].ctgId),
-                                                      category: snapshot.data!
-                                                          .data[index].ctgId
-                                                          .toString(),
-                                                      title: snapshot.data!
-                                                          .data[index].name,
-                                                      //image: snapshot.data!.data[index].thumb.toString(),
-                                                    ),
-                                              )),
+                        return Padding(
+                          padding: EdgeInsets.only(bottom: 10.h),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.only(left: 5.w, right: 5.w, top: 20.h),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(20.r),
+                                      topRight: Radius.circular(20.r),
                                     ),
                                   ),
-                                  for(final item in snapshot.data!.data[index]
-                                      .items)
-                                    InkWell(
-                                      onTap: (){},
-                                      child: ListTile(
-                                        leading: InkWell(
-                                          onTap: (){
-                                            showDialog(
-                                                context: context,
-                                                builder: (
-                                                    BuildContext context) {
-                                                  return Center(
-                                                    child: Material(
-                                                      type: MaterialType.transparency,
-                                                      child: Container(
-                                                          decoration: BoxDecoration(
-                                                            borderRadius: BorderRadius.circular(10),
-                                                            color: Colors.white,
-                                                          ),
-                                                          //padding: EdgeInsets.all(15),
-                                                          height: 300.h,
-                                                          width: MediaQuery.of(context).size.width,
+                                  child:  RefreshIndicator(
+                                    onRefresh: () {
+                                      setState(() {});
+                                      return fetchOpenMenuList(widget.product);
+                                    },
+                                    child: FutureBuilder<MenuListData>(
+                                      future: futureOpenMenuList,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
 
-                                                          child: ClipRRect(
-                                                            borderRadius: BorderRadius.circular(5.r),
-                                                            child: Image.network(item.thumb.toString(), fit: BoxFit.cover,),
-                                                          )
+                                          return ListView.builder(
+                                              padding: EdgeInsets.symmetric(vertical: 10.h),
+                                              itemCount: snapshot.data!.data.length,
+                                              itemBuilder: (BuildContext context, int index) {
+                                                if (snapshot.data!.data[index].ctgId.isEmpty &&
+                                                    snapshot.data!.data[index].name.isEmpty) {
+                                                  return SizedBox.shrink();
+                                                }
+
+                                                else {
+                                                  return Column(
+                                                    children: [
+                                                      Padding(
+                                                        padding: EdgeInsets.symmetric(
+                                                            horizontal: 15.w),
+                                                        child: InkWell(
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment
+                                                                .spaceBetween,
+                                                            children: [
+                                                              Text(
+                                                                snapshot.data!.data[index].name,
+                                                                style: TextStyle(
+                                                                  fontSize: 20.sp,
+                                                                  color: kblue,
+                                                                  fontWeight: FontWeight.bold,
+                                                                ),
+                                                              ),
+                                                              Icon(
+                                                                snapshot.data!.data[index].ctgId
+                                                                    .isNotEmpty &&
+                                                                    snapshot.data!.data[index].name
+                                                                        .isNotEmpty
+                                                                    ? Icons.arrow_forward_ios
+                                                                    : null,
+                                                                color: kblue,
+                                                                size: 20.r,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          onTap: () =>
+                                                              Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                    builder: (context) =>
+                                                                        CatMenuList2(
+                                                                          //category: AllCatList.fromJson(data!.data[index].ctgId),
+                                                                          category: snapshot.data!
+                                                                              .data[index].ctgId
+                                                                              .toString(),
+                                                                          title: snapshot.data!
+                                                                              .data[index].name,
+                                                                          //image: snapshot.data!.data[index].thumb.toString(),
+                                                                        ),
+                                                                  )),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  );
-                                                });
-                                          },
-                                          child: Image.network(
-                                              item.thumb.toString()
-                                          ),
-                                        ),
-                                        title: Text(item.prodName),
-                                        subtitle: Text(
-                                            snapshot.data!.data[index].name),
-                                        trailing: GestureDetector(
-                                          onTap: () {
-                                            /*showModalBottomSheet(
+                                                      for(final item in snapshot.data!.data[index]
+                                                          .items)
+                                                        InkWell(
+                                                          onTap: (){},
+                                                          child: ListTile(
+                                                            leading: InkWell(
+                                                              onTap: (){
+                                                                showDialog(
+                                                                    context: context,
+                                                                    builder: (
+                                                                        BuildContext context) {
+                                                                      return Center(
+                                                                        child: Material(
+                                                                          type: MaterialType.transparency,
+                                                                          child: Container(
+                                                                              decoration: BoxDecoration(
+                                                                                borderRadius: BorderRadius.circular(10),
+                                                                                color: Colors.white,
+                                                                              ),
+                                                                              //padding: EdgeInsets.all(15),
+                                                                              height: 300.h,
+                                                                              width: MediaQuery.of(context).size.width,
+
+                                                                              child: ClipRRect(
+                                                                                borderRadius: BorderRadius.circular(5.r),
+                                                                                child: Image.network(item.thumb.toString(), fit: BoxFit.cover,),
+                                                                              )
+                                                                          ),
+                                                                        ),
+                                                                      );
+                                                                    });
+                                                              },
+                                                              child: Image.network(
+                                                                  item.thumb.toString()
+                                                              ),
+                                                            ),
+                                                            title: Text(item.prodName),
+                                                            subtitle: Text(
+                                                                snapshot.data!.data[index].name),
+                                                            trailing: GestureDetector(
+                                                              onTap: () {
+                                                                /*showModalBottomSheet(
                                                 context: context,
                                                 builder: (context) {
                                                   return SizedBox(
@@ -607,172 +837,291 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
                                                     ),
                                                   );
                                                 });*/
-                                            showModalBottomSheet(
-                                                backgroundColor: Colors.transparent,
-                                                isScrollControlled: true,
-                                                context: context,
-                                                builder: (BuildContext context)  => Container(
-                                                  height: 200.h,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:  BorderRadius.only(
-                                                      topLeft: Radius.circular(25.r),
-                                                      topRight: Radius.circular(25.r),
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                                    child: Column(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: <Widget>[
-                                                        SizedBox(height: 16.h,),
-                                                        Center(
-                                                          child: Container(
-                                                            decoration: BoxDecoration(
-                                                                borderRadius: BorderRadius.circular(20.r),
-                                                                color: kblue
+                                                                showModalBottomSheet(
+                                                                    backgroundColor: Colors.transparent,
+                                                                    isScrollControlled: true,
+                                                                    context: context,
+                                                                    builder: (BuildContext context)  => Container(
+                                                                      height: 200.h,
+                                                                      decoration: BoxDecoration(
+                                                                        color: Colors.white,
+                                                                        borderRadius:  BorderRadius.only(
+                                                                          topLeft: Radius.circular(25.r),
+                                                                          topRight: Radius.circular(25.r),
+                                                                        ),
+                                                                      ),
+                                                                      child: Padding(
+                                                                        padding: EdgeInsets.symmetric(horizontal: 10.w),
+                                                                        child: Column(
+                                                                          mainAxisSize: MainAxisSize.min,
+                                                                          children: <Widget>[
+                                                                            SizedBox(height: 16.h,),
+                                                                            Center(
+                                                                              child: Container(
+                                                                                decoration: BoxDecoration(
+                                                                                    borderRadius: BorderRadius.circular(20.r),
+                                                                                    color: kblue
+                                                                                ),
+                                                                                width: 100.w,
+                                                                                height: 5.h,
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(height: 16.h,),
+                                                                            Column(
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              children: <Widget>[
+                                                                                TextButton(
+                                                                                  onPressed: () async{
+                                                                                    final urlImage = item.thumb.toString();
+                                                                                    final url = Uri.parse(urlImage);
+                                                                                    final response = await http.get(url);
+                                                                                    final bytes = response.bodyBytes;
+
+                                                                                    final temp = await getTemporaryDirectory();
+                                                                                    final path = '${temp.path}/image.jpg';
+                                                                                    File(path).writeAsBytesSync(bytes);
+
+                                                                                    await Share.shareFiles([path], text: item.prodName);
+                                                                                    //await Share.share([path], subject: snapshot.data!.data[index].prodName);
+
+                                                                                  },
+                                                                                  child: Row(
+                                                                                    children: [
+                                                                                      Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
+                                                                                      SizedBox(width: 15.w,),
+                                                                                      Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                                Divider(height: 5.h, color: Colors.black54,),
+                                                                                TextButton(
+                                                                                  onPressed: () async {
+                                                                                    Navigator.of(context)
+                                                                                        .pop();
+                                                                                    setState(() {
+                                                                                      //fetchDeleteMenu(widget.product);
+                                                                                      Fluttertoast.showToast(
+                                                                                        msg: "Item Removed from Menu Successfully!", // your toast message
+                                                                                        toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                                                                                        gravity: ToastGravity.BOTTOM, // toast gravity
+                                                                                        backgroundColor: Colors.black54, // background color of the toast
+                                                                                        textColor: Colors.white, // text color of the toast
+                                                                                      );
+                                                                                    });
+                                                                                    String ProdId = item.prodId;
+                                                                                    int index = snapshot.data!.data.indexWhere((menu) =>
+                                                                                        menu.items.any((item) => item.prodId == ProdId));
+                                                                                    if (index != -1) {
+                                                                                      int itemIndex = snapshot.data!.data[index].items.indexWhere((item) =>
+                                                                                      item.prodId ==
+                                                                                          ProdId);
+                                                                                      if (itemIndex !=
+                                                                                          -1) {
+                                                                                        snapshot.data!
+                                                                                            .data[index]
+                                                                                            .items
+                                                                                            .removeAt(
+                                                                                            itemIndex);
+                                                                                        if (snapshot.data!
+                                                                                            .data[index]
+                                                                                            .items
+                                                                                            .isEmpty) {
+                                                                                          // If no remaining items, delete cat_id and name
+                                                                                          snapshot.data!
+                                                                                              .data[index]
+                                                                                              .ctgId =
+                                                                                          ''; // set cat_id to empty
+                                                                                          snapshot.data!
+                                                                                              .data[index]
+                                                                                              .name =
+                                                                                          ''; // set name to empty
+                                                                                        }
+                                                                                        await fetchRemoveMenuData(
+                                                                                            widget
+                                                                                                .product,
+                                                                                            ProdId);
+                                                                                        //await fetchDeleteMenu(widget.product);
+                                                                                        await futureOpenMenuList; // update API data with updated item list
+                                                                                        setState(() {
+                                                                                          //fetchDeleteMenu(widget.product);
+                                                                                          futureOpenMenuList;
+                                                                                          Fluttertoast.showToast(
+                                                                                            msg: "Menu Deleted Successfully!", // your toast message
+                                                                                            toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                                                                                            gravity: ToastGravity.BOTTOM, // toast gravity
+                                                                                            backgroundColor: Colors.black54, // background color of the toast
+                                                                                            textColor: Colors.white, // text color of the toast
+                                                                                          );
+                                                                                        });
+                                                                                      }
+                                                                                    }
+                                                                                    Navigator.of(context)
+                                                                                        .pop();
+                                                                                    //fetchDeleteMenu(widget.product);
+                                                                                    futureOpenMenuList;
+                                                                                  },
+                                                                                  child: Row(
+                                                                                    children: [
+                                                                                      Image.asset("assets/images/Delete-Icon.png", height: 20.h, width: 20.w,),
+                                                                                      SizedBox(width: 15.w,),
+                                                                                      Text('Remove from the Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                                    ],
+                                                                                  ),
+                                                                                ),
+                                                                                SizedBox(height: 20.h,),
+                                                                              ],
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                );
+                                                              },
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.all(8.0),
+                                                                child: Container(
+                                                                    padding: EdgeInsets.all(5.r),
+                                                                    decoration: BoxDecoration(
+                                                                      color: Colors.transparent,
+                                                                      borderRadius: BorderRadius
+                                                                          .circular(10.r),
+                                                                    ),
+                                                                    child: Image.asset(
+                                                                        "assets/images/MenuIcon.png",
+                                                                        height: 20.h, width: 20.w)
+                                                                ),
+                                                              ),
                                                             ),
-                                                            width: 100.w,
-                                                            height: 5.h,
                                                           ),
                                                         ),
-                                                        SizedBox(height: 16.h,),
-                                                        Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          mainAxisSize: MainAxisSize.min,
-                                                          children: <Widget>[
-                                                            TextButton(
-                                                              onPressed: () async{
-                                                                final urlImage = item.thumb.toString();
-                                                                final url = Uri.parse(urlImage);
-                                                                final response = await http.get(url);
-                                                                final bytes = response.bodyBytes;
+                                                      Padding(
+                                                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                                                        child: Divider(height: 5.h, color: Colors.black54,),
+                                                      ),
+                                                    ],
+                                                  );
+                                                }
+                                              }
+                                          );
 
-                                                                final temp = await getTemporaryDirectory();
-                                                                final path = '${temp.path}/image.jpg';
-                                                                File(path).writeAsBytesSync(bytes);
-
-                                                                await Share.shareFiles([path], text: item.prodName);
-                                                                //await Share.share([path], subject: snapshot.data!.data[index].prodName);
-
-                                                              },
-                                                              child: Row(
-                                                                children: [
-                                                                  Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
-                                                                  SizedBox(width: 15.w,),
-                                                                  Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            Divider(height: 5.h, color: kwhite2,),
-                                                            TextButton(
-                                                              onPressed: () async {
-                                                                Navigator.of(context)
-                                                                    .pop();
-                                                                setState(() {
-                                                                  //fetchDeleteMenu(widget.product);
-                                                                  Fluttertoast.showToast(
-                                                                    msg: "Item Removed from Menu Successfully!", // your toast message
-                                                                    toastLength: Toast.LENGTH_SHORT, // duration of the toast
-                                                                    gravity: ToastGravity.BOTTOM, // toast gravity
-                                                                    backgroundColor: Colors.black54, // background color of the toast
-                                                                    textColor: Colors.white, // text color of the toast
-                                                                  );
-                                                                });
-                                                                String ProdId = item.prodId;
-                                                                int index = snapshot.data!.data.indexWhere((menu) =>
-                                                                    menu.items.any((item) => item.prodId == ProdId));
-                                                                if (index != -1) {
-                                                                  int itemIndex = snapshot.data!.data[index].items.indexWhere((item) =>
-                                                                  item.prodId ==
-                                                                      ProdId);
-                                                                  if (itemIndex !=
-                                                                      -1) {
-                                                                    snapshot.data!
-                                                                        .data[index]
-                                                                        .items
-                                                                        .removeAt(
-                                                                        itemIndex);
-                                                                    if (snapshot.data!
-                                                                        .data[index]
-                                                                        .items
-                                                                        .isEmpty) {
-                                                                      // If no remaining items, delete cat_id and name
-                                                                      snapshot.data!
-                                                                          .data[index]
-                                                                          .ctgId =
-                                                                      ''; // set cat_id to empty
-                                                                      snapshot.data!
-                                                                          .data[index]
-                                                                          .name =
-                                                                      ''; // set name to empty
-                                                                    }
-                                                                    await fetchRemoveMenuData(
-                                                                        widget
-                                                                            .product,
-                                                                        ProdId);
-                                                                    //await fetchDeleteMenu(widget.product);
-                                                                    await futureOpenMenuList; // update API data with updated item list
-                                                                    setState(() {
-                                                                      //fetchDeleteMenu(widget.product);
-                                                                      futureOpenMenuList;
-                                                                      Fluttertoast.showToast(
-                                                                        msg: "Menu Deleted Successfully!", // your toast message
-                                                                        toastLength: Toast.LENGTH_SHORT, // duration of the toast
-                                                                        gravity: ToastGravity.BOTTOM, // toast gravity
-                                                                        backgroundColor: Colors.black54, // background color of the toast
-                                                                        textColor: Colors.white, // text color of the toast
-                                                                      );
-                                                                    });
-                                                                  }
-                                                                }
-                                                                Navigator.of(context)
-                                                                    .pop();
-                                                                //fetchDeleteMenu(widget.product);
-                                                                futureOpenMenuList;
-                                                              },
-                                                              child: Row(
-                                                                children: [
-                                                                  Image.asset("assets/images/Delete-Icon.png", height: 20.h, width: 20.w,),
-                                                                  SizedBox(width: 15.w,),
-                                                                  Text('Remove from the Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                            SizedBox(height: 20.h,),
-                                                          ],
-                                                        ),
-                                                      ],
+                                        }
+                                        else if (snapshot.hasError) {
+                                          return Center(
+                                            child: SingleChildScrollView(
+                                              child: Padding(
+                                                padding: EdgeInsets.symmetric(horizontal: 20.w,),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    Image.asset(
+                                                      'assets/images/NoRecordsFound.png',
+                                                      height: 150.h,
                                                     ),
-                                                  ),
-                                                )
-                                            );
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Container(
-                                                padding: EdgeInsets.all(5.r),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  borderRadius: BorderRadius
-                                                      .circular(10.r),
+                                                    SizedBox(
+                                                      height: 15.h,
+                                                    ),
+                                                    Center(
+                                                      child: Text(
+                                                        'Your Menu is Empty!',
+                                                        textAlign: TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 25.sp,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: kblue,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 15.h,
+                                                    ),
+                                                    Center(
+                                                      child: Text(
+                                                        'Looks like you haven\'t added \nanything to your menu yet!',
+                                                        textAlign: TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 18.sp,
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 25.h,
+                                                    ),
+                                                    Container(
+                                                      height: 70.h,
+                                                      width: 1.sw/2.w,
+                                                      child: TextButton(
+                                                        onPressed: () {
+                                                          Navigator.push(
+                                                              context, MaterialPageRoute(builder: (context) =>
+                                                              CategoryPage2(),
+                                                          ));
+                                                        },
+                                                        //onPressed: _verifyPhoneNumber,
+                                                        style: TextButton.styleFrom(
+                                                            foregroundColor: Colors.white,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(10.r),
+                                                            ),
+                                                            backgroundColor: kblue),
+                                                        child:
+                                                        Text(
+                                                          'Browse Food Items',
+                                                          style: TextStyle(fontFamily: 'Roboto', fontSize: 20.sp),),
+                                                      ),
+                                                    )
+                                                  ],
                                                 ),
-                                                child: Image.asset(
-                                                    "assets/images/MenuIcon.png",
-                                                    height: 20.h, width: 20.w)
+                                              ),
                                             ),
+                                          );
+                                        }
+                                        return const Center(
+                                          child: SizedBox(
+                                            height: 24.0,
+                                            width: 24.0,
+                                            child: CircularProgressIndicator(),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      },
                                     ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                                    child: Divider(height: 5.h, color: kwhite2,),
                                   ),
-                                ],
-                              );
-                            }
-                          }
+
+
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 15.h, top: 10.h),
+                                child: Visibility(
+                                  visible: _showDialogs,
+                                  child: Container(
+                                      height: 70.h,
+                                      width: 1.sw/2.w,
+                                      child: TextButton(
+                                        onPressed: () {
+                                          _showDialog(context);
+                                          setState(() {
+                                            _showDialogs = false; // Update the value to hide the button
+                                          });
+                                        },
+                                        //onPressed: _verifyPhoneNumber,
+                                        style: TextButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10.r),
+                                            ),
+                                            backgroundColor: kblue),
+                                        child:
+                                        Text(
+                                          'Save This Menu',
+                                          style: TextStyle(fontFamily: 'Roboto', fontSize: 20.sp),),
+                                      ),
+                                    )
+                                ),
+                              ),
+                            ],
+                          ),
                         );
 
                       }
@@ -849,8 +1198,8 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
                       }
                       return const Center(
                         child: SizedBox(
-                          height: 50.0,
-                          width: 50.0,
+                          height: 24.0,
+                          width: 24.0,
                           child: CircularProgressIndicator(),
                         ),
                       );

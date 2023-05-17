@@ -34,13 +34,31 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool _isMaintenanceMode = false;
   String _maintenanceMsg = '';
-  final _formKey = GlobalKey<FormState>();
+  final _formKey2 = GlobalKey<FormState>();
   final _contactController = TextEditingController();
+  var version;
 
   @override
   void initState() {
     super.initState();
     _checkMaintenanceMode();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final data = await fetchMaintenanceModeData();
+    if (data['code'] == 1) {
+      final appVersion = data['data']['appversion'];
+      await SessionManager().set("appversion", appVersion);
+      setState(() {
+        version = appVersion;
+      });
+    }
+    else{
+      setState(() {
+        version = 1;
+      });
+    }
   }
 
   Future<void> _checkMaintenanceMode() async {
@@ -214,7 +232,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                           title: Text("Update Name",
                                                             style: TextStyle(fontSize: 20.sp),),
                                                           content: Form(
-                                                              key: _formKey,
+                                                              key: _formKey2,
                                                               child: Column(
                                                                 mainAxisSize: MainAxisSize.min, //the dialog takes only size it needs
                                                                 children: [
@@ -264,7 +282,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                             TextButton(
                                                               child: const Text("Edit"),
                                                               onPressed: () async {
-                                                                if (_formKey.currentState!.validate()) {
+                                                                if (_formKey2.currentState!.validate()) {
                                                                   String name = _contactController.text.trim();
                                                                   dynamic cid = await SessionManager().get("cid");
 
@@ -328,7 +346,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 ),
                                               ),
                                               SizedBox(height: 10.h,),
-                                              Divider(height: 5.h, color: kwhite2,),
+                                              Divider(height: 5.h, color: Colors.black45,),
                                               SizedBox(height: 10.h,),
                                               Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -357,7 +375,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ],
                             ),),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: kwhite2,),
+                          Divider(height: 5.h, color: Colors.black45,),
                           SizedBox(height: 2.h,),
                           /*TextButton(
                         onPressed: () {},
@@ -371,7 +389,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       SizedBox(height: 2.h,),
-                      Divider(height: 5.h, color: kwhite2,),
+                      Divider(height: 5.h, color: Colors.black45,),
                       SizedBox(height: 2.h,),*/
                           TextButton(
                             onPressed: () async {
@@ -415,7 +433,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: kwhite2,),
+                          Divider(height: 5.h, color: Colors.black45,),
                           SizedBox(height: 2.h,),
                           TextButton(
                             onPressed: () async {
@@ -458,7 +476,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: kwhite2,),
+                          Divider(height: 5.h, color: Colors.black45,),
                           SizedBox(height: 2.h,),
                           TextButton(
                             onPressed: () async {
@@ -482,7 +500,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: kwhite2,),
+                          Divider(height: 5.h, color: Colors.black45,),
                           SizedBox(height: 2.h,),
                           TextButton(
                             onPressed: () async{
@@ -524,7 +542,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           SizedBox(height: 2.h,),
-                          Divider(height: 5.h, color: kwhite2,),
+                          Divider(height: 5.h, color: Colors.black45,),
                         ],
                       ),
                       Column(
@@ -533,7 +551,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           Image.asset("assets/images/LogoSplash.png",  height: 60.h,),
                           SizedBox(height: 15.h,),
-                          Text('App Version 1.1'),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('App Version $version'),
+                              //Text('1.1'),
+                            ],
+                          ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -542,13 +566,35 @@ class _ProfilePageState extends State<ProfilePage> {
                               Padding(
                                 padding: EdgeInsets.zero,
                                 child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => WeDevelopTech(),
-                                      ),
-                                    );
+                                  onPressed: () async {
+                                    final data = await fetchMaintenanceModeData();
+                                    if (data['code'] == 1) {
+                                      if (data['data']['privacypolicy'] != null) {
+                                        //await launchUrl(data['data']['privacypolicy']);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => WeDevelopTech(url: data['data']['devloperurl']),
+                                          ),
+                                        );
+                                      } else {
+                                        Fluttertoast.showToast(
+                                          msg: "Page Not Found!", // your toast message
+                                          toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                                          gravity: ToastGravity.BOTTOM, // toast gravity
+                                          backgroundColor: Colors.black54, // background color of the toast
+                                          textColor: Colors.white, // text color of the toast
+                                        );
+                                      }
+                                    } else {
+                                      Fluttertoast.showToast(
+                                        msg: "Page Not Found!", // your toast message
+                                        toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                                        gravity: ToastGravity.BOTTOM, // toast gravity
+                                        backgroundColor: Colors.black54, // background color of the toast
+                                        textColor: Colors.white, // text color of the toast
+                                      );
+                                    }
                                   },
                                   child: Text('WeDevelopTech', style: TextStyle(
                                       color: kblack),),
@@ -560,6 +606,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ],
                           ),
+                          SizedBox(height: 15.h,),
                         ],
                       )
                       //SizedBox(height: 20.h,),
@@ -605,7 +652,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _launchApp() async {
     // Replace 'com.example.your_app_package' with your app's package name
-    String appPackage = 'com.galacaterers.app_data';
+    String appPackage = 'in.galacaterers.app_data';
 
     // Open the Google Play Store with the app's URL
     //String url = 'https://play.google.com/store/apps/details?id=$appPackage';
@@ -740,8 +787,8 @@ void _showRatingDialog(BuildContext context){
           child: Text("Submit"),
           onPressed: () async {
             Navigator.pop(context);
-            if (await canLaunch("https://play.google.com/store/apps/details?id=com.galacaterers.app_data&pli=1")) {
-              await launch("https://play.google.com/store/apps/details?id=com.galacaterers.app_data&pli=1");
+            if (await canLaunch("https://play.google.com/store/apps/details?id=in.galacaterers.app_data&pli=1")) {
+              await launch("https://play.google.com/store/apps/details?id=in.galacaterers.app_data&pli=1");
             } else {
               throw "Could not launch store";
             }

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.galacaterers.app_data">
+    package="in.galacaterers.app_data">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -42,10 +42,11 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!--<data android:scheme="http" android:host="https://galacaterer.page.link" />-->
                 <data
-                    android:host="galacaterers.page.link"
+                    android:host="gala.page.link"
                     android:scheme="https" />
                 <data
-                    android:scheme="https" />
+                    android:host="gala.page.link"
+                    android:scheme="http" />
             </intent-filter>
 
         </activity>

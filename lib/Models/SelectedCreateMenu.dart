@@ -8,7 +8,7 @@ class SelectedCreateMenu {
   int ignore;
   int code;
   String message;
-  List<Datum> data;
+  List<Datum1> data;
 
   SelectedCreateMenu({
     required this.ignore,
@@ -21,7 +21,7 @@ class SelectedCreateMenu {
     ignore: json["ignore"],
     code: json["code"],
     message: json["message"],
-    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+    data: List<Datum1>.from(json["data"].map((x) => Datum1.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -32,18 +32,18 @@ class SelectedCreateMenu {
   };
 }
 
-class Datum {
+class Datum1 {
   String id;
   String name;
   String isselected;
 
-  Datum({
+  Datum1({
     required this.id,
     required this.name,
     required this.isselected,
   });
 
-  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+  factory Datum1.fromJson(Map<String, dynamic> json) => Datum1(
     id: json["id"],
     name: json["name"],
     isselected: json["isselected"],

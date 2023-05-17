@@ -39,7 +39,7 @@ class _MenuPageState extends State<MenuPage> {
   GlobalKey<RefreshIndicatorState>();
 
   //form key for validating the form fields
-  final formKey = GlobalKey<FormState>();
+  final formKey1 = GlobalKey<FormState>();
   final TextEditingController _controller = TextEditingController();
   late Future<CreateMenu> futureCreateMenu;
   late Future<SelectedCreateMenu> futureSelectedCreateMenu;
@@ -169,6 +169,7 @@ class _MenuPageState extends State<MenuPage> {
                                         builder: (BuildContext context) => MenuDetailPage(
                                           name: snapshot.data!.data[index].name,
                                           product: snapshot.data!.data[index].id,
+                                          openedByDeepLink: false,
                                         ),
                                       ),),
                                     child: Container(
@@ -231,207 +232,205 @@ class _MenuPageState extends State<MenuPage> {
                                                               topRight: Radius.circular(25.r),
                                                             ),
                                                           ),
-                                                          child: Padding(
-                                                            padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                                            child: Column(
-                                                              mainAxisSize: MainAxisSize.min,
-                                                              children: <Widget>[
-                                                                SizedBox(height: 16.h,),
-                                                                Center(
-                                                                  child: Container(
-                                                                    decoration: BoxDecoration(
-                                                                        borderRadius: BorderRadius.circular(20.r),
-                                                                        color: kblue
-                                                                    ),
-                                                                    width: 100.w,
-                                                                    height: 5.h,
+                                                          child: Column(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: <Widget>[
+                                                              SizedBox(height: 16.h,),
+                                                              Center(
+                                                                child: Container(
+                                                                  decoration: BoxDecoration(
+                                                                      borderRadius: BorderRadius.circular(20.r),
+                                                                      color: kblue
                                                                   ),
+                                                                  width: 100.w,
+                                                                  height: 5.h,
                                                                 ),
-                                                                SizedBox(height: 16.h,),
-                                                                Column(
-                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                  mainAxisSize: MainAxisSize.min,
-                                                                  children: <Widget>[
-                                                                    /*TextButton(
-                                                                      //onPressed: () => Share.share(snapshot.data!.data[index].thumb.toString(),
-                                                                      //subject: snapshot.data!.data[index].prodName),
-                                                                      onPressed: () async{},
-                                                                      child: Row(
-                                                                        children: [
-                                                                          SizedBox(width: 10.w,),
-                                                                          Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
-                                                                          SizedBox(width: 15.w,),
-                                                                          Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                        ],
-                                                                      ),
+                                                              ),
+                                                              SizedBox(height: 16.h,),
+                                                              Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                mainAxisSize: MainAxisSize.min,
+                                                                children: <Widget>[
+                                                                  /*TextButton(
+                                                                    //onPressed: () => Share.share(snapshot.data!.data[index].thumb.toString(),
+                                                                    //subject: snapshot.data!.data[index].prodName),
+                                                                    onPressed: () async{},
+                                                                    child: Row(
+                                                                      children: [
+                                                                        SizedBox(width: 10.w,),
+                                                                        Image.asset("assets/images/Share.png", height: 20.h, width: 20.w,),
+                                                                        SizedBox(width: 15.w,),
+                                                                        Text('Share', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                      ],
                                                                     ),
-                                                                    Divider(height: 5.h, color: kwhite2,),*/
-                                                                    TextButton(
-                                                                      onPressed: (){
-                                                                        showDialog(
-                                                                            context: context,
-                                                                            builder: (BuildContext context){
-                                                                              return AlertDialog(
-                                                                                title: Text("Update Menu Name",
-                                                                                  style: TextStyle(fontSize: 20.sp),),
-                                                                                content: Form(
-                                                                                    key: formKey,
-                                                                                    child: Column(
-                                                                                      mainAxisSize: MainAxisSize.min, //the dialog takes only size it needs
-                                                                                      children: [
-                                                                                        TextFormField(
-                                                                                          controller: _controller,
-                                                                                          textCapitalization: TextCapitalization.words,
-                                                                                          autocorrect: true,
-                                                                                          onChanged: (value) {},
-                                                                                          validator: (value) {
-                                                                                            if (value == null || value.isEmpty) {
-                                                                                              return 'Value is required';
-                                                                                            }
-                                                                                            return null;
-                                                                                          },
-                                                                                          decoration: InputDecoration(
-                                                                                            labelText: 'Menu Name',
-                                                                                            hintStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
-                                                                                            fillColor: Colors.white,
-                                                                                            filled: true,
-                                                                                            //enabledBorder: InputBorder.none,
-                                                                                            enabledBorder: OutlineInputBorder(
-                                                                                              borderSide: BorderSide(
-                                                                                                color: kgrey,),
-                                                                                              //borderRadius: BorderRadius.circular(50.0),
-                                                                                            ),
-                                                                                            //focusedBorder: InputBorder.none
-                                                                                            focusedBorder: OutlineInputBorder(
-                                                                                              borderSide: BorderSide(
-                                                                                                color: kgrey,
-                                                                                              ),
-                                                                                              borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                                                                                            ),
-                                                                                            contentPadding: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
+                                                                  ),
+                                                                  Divider(height: 5.h, color: Colors.black45,),*/
+                                                                  TextButton(
+                                                                    onPressed: (){
+                                                                      showDialog(
+                                                                          context: context,
+                                                                          builder: (BuildContext context){
+                                                                            return AlertDialog(
+                                                                              title: Text("Update Menu Name",
+                                                                                style: TextStyle(fontSize: 20.sp),),
+                                                                              content: Form(
+                                                                                  key: formKey1,
+                                                                                  child: Column(
+                                                                                    mainAxisSize: MainAxisSize.min, //the dialog takes only size it needs
+                                                                                    children: [
+                                                                                      TextFormField(
+                                                                                        controller: _controller,
+                                                                                        textCapitalization: TextCapitalization.words,
+                                                                                        autocorrect: true,
+                                                                                        onChanged: (value) {},
+                                                                                        validator: (value) {
+                                                                                          if (value == null || value.isEmpty) {
+                                                                                            return 'Value is required';
+                                                                                          }
+                                                                                          return null;
+                                                                                        },
+                                                                                        decoration: InputDecoration(
+                                                                                          labelText: 'Menu Name',
+                                                                                          hintStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.sp),
+                                                                                          fillColor: Colors.white,
+                                                                                          filled: true,
+                                                                                          //enabledBorder: InputBorder.none,
+                                                                                          enabledBorder: OutlineInputBorder(
+                                                                                            borderSide: BorderSide(
+                                                                                              color: kgrey,),
+                                                                                            //borderRadius: BorderRadius.circular(50.0),
                                                                                           ),
+                                                                                          //focusedBorder: InputBorder.none
+                                                                                          focusedBorder: OutlineInputBorder(
+                                                                                            borderSide: BorderSide(
+                                                                                              color: kgrey,
+                                                                                            ),
+                                                                                            borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                                                                                          ),
+                                                                                          contentPadding: EdgeInsets.fromLTRB(5.0, 5.0, 5.0, 5.0),
                                                                                         ),
-                                                                                        /*TextFormField(
-                                                                controller: _contactController, //will help get the field value on submit
-                                                                decoration: const InputDecoration(
-                                                                  //border: OutlineInputBorder(),
-                                                                  labelText: 'User Name',
-                                                                ),
-                                                                //validator on submit, must return null when every thing ok
-                                                                // The validator receives the text that the user has entered.
-                                                                validator: (value){
-                                                                  if(value == null || value.isEmpty){
-                                                                    return 'Value is required!';}
-                                                                  else if(value.trim().isEmpty){
-                                                                    return "Value is required!";
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                              ),*/
-                                                                                      ],
-                                                                                    )
-                                                                                ),
-                                                                                //actions
-                                                                                actions: [
-                                                                                  //dismiss dialog
-                                                                                  TextButton(onPressed: (){
-                                                                                    Navigator.of(context).pop(); // dismiss dialog
-                                                                                  }, child: const Text("Cancel")),
+                                                                                      ),
+                                                                                      /*TextFormField(
+                                                              controller: _contactController, //will help get the field value on submit
+                                                              decoration: const InputDecoration(
+                                                                //border: OutlineInputBorder(),
+                                                                labelText: 'User Name',
+                                                              ),
+                                                              //validator on submit, must return null when every thing ok
+                                                              // The validator receives the text that the user has entered.
+                                                              validator: (value){
+                                                                if(value == null || value.isEmpty){
+                                                                  return 'Value is required!';}
+                                                                else if(value.trim().isEmpty){
+                                                                  return "Value is required!";
+                                                                }
+                                                                return null;
+                                                              },
+                                                            ),*/
+                                                                                    ],
+                                                                                  )
+                                                                              ),
+                                                                              //actions
+                                                                              actions: [
+                                                                                //dismiss dialog
+                                                                                TextButton(onPressed: (){
+                                                                                  Navigator.of(context).pop(); // dismiss dialog
+                                                                                }, child: const Text("Cancel")),
 
-                                                                                  //save btn
-                                                                                  TextButton(
-                                                                                    child: const Text("Edit"),
-                                                                                    onPressed: (){
+                                                                                //save btn
+                                                                                TextButton(
+                                                                                  child: const Text("Edit"),
+                                                                                  onPressed: (){
+                                                                                    Navigator.of(context).pop();
+                                                                                    if (formKey1.currentState!.validate()) {
+                                                                                      setState(() {
+                                                                                        futureUpdateData = fetchUpdateData(snapshot.data!.data[index].id, _controller.text);
+                                                                                        futureCreateMenu = fetchCreateMenu();
+                                                                                      });
+                                                                                      _controller.clear(); //clear text in field
+                                                                                      //_countController.clear(); //clear the field
+                                                                                      Navigator.of(context).pop(); // dismiss dialog
+                                                                                      Fluttertoast.showToast(
+                                                                                        msg: "Menu Updated Successfully!", // your toast message
+                                                                                        toastLength: Toast.LENGTH_SHORT, // duration of the toast
+                                                                                        gravity: ToastGravity.BOTTOM, // toast gravity
+                                                                                        backgroundColor: Colors.black54, // background color of the toast
+                                                                                        textColor: Colors.white, // text color of the toast
+                                                                                      );
+                                                                                      futureCreateMenu = fetchCreateMenu();
+                                                                                    }
+                                                                                  },
+
+                                                                                ),
+
+                                                                              ],
+                                                                            );
+                                                                          });
+                                                                    },
+                                                                    child: Row(
+                                                                      children: [
+                                                                        SizedBox(width: 10.w,),
+                                                                        Image.asset("assets/images/Edit-Icon.png", height: 20.h, width: 20.w,),
+                                                                        SizedBox(width: 15.w,),
+                                                                        Text('Edit Menu Name', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                  Divider(height: 5.h, color: Colors.black45,),
+                                                                  TextButton(
+                                                                    //onPressed: () => Share.share(snapshot.data!.data[index].thumb.toString(),
+                                                                    //subject: snapshot.data!.data[index].prodName),
+                                                                    onPressed: () async{
+                                                                      showDialog(
+                                                                          context: context,
+                                                                          builder: (context) {
+                                                                            return AlertDialog(
+                                                                              title: Text('Delete Menu',
+                                                                                style: TextStyle(fontSize: 20.sp),),
+                                                                              content: Text('Do you really want to delete this menu?',
+                                                                                style: TextStyle(fontSize: 18.sp),),
+                                                                              actions: <Widget>[
+                                                                                TextButton(
+                                                                                  onPressed: () {
+                                                                                    Navigator.pop(context); //close Dialog
+                                                                                  },
+                                                                                  child: Text('Cancel'),
+                                                                                ),
+                                                                                TextButton(
+                                                                                    onPressed: () {
+                                                                                      //action code for "Yes" button
                                                                                       Navigator.of(context).pop();
-                                                                                      if (formKey.currentState!.validate()) {
-                                                                                        setState(() {
-                                                                                          futureUpdateData = fetchUpdateData(snapshot.data!.data[index].id, _controller.text);
-                                                                                          futureCreateMenu = fetchCreateMenu();
-                                                                                        });
-                                                                                        _controller.clear(); //clear text in field
-                                                                                        //_countController.clear(); //clear the field
-                                                                                        Navigator.of(context).pop(); // dismiss dialog
+                                                                                      setState(() {
+                                                                                        futureDeleteData = fetchDeleteData(snapshot.data!.data[index].id);
+                                                                                        futureCreateMenu = fetchCreateMenu();
                                                                                         Fluttertoast.showToast(
-                                                                                          msg: "Menu Updated Successfully!", // your toast message
+                                                                                          msg: "Menu Deleted Successfully!", // your toast message
                                                                                           toastLength: Toast.LENGTH_SHORT, // duration of the toast
                                                                                           gravity: ToastGravity.BOTTOM, // toast gravity
                                                                                           backgroundColor: Colors.black54, // background color of the toast
                                                                                           textColor: Colors.white, // text color of the toast
                                                                                         );
                                                                                         futureCreateMenu = fetchCreateMenu();
-                                                                                      }
+                                                                                      });
+                                                                                      Navigator.of(context).pop();
                                                                                     },
-
-                                                                                  ),
-
-                                                                                ],
-                                                                              );
-                                                                            });
-                                                                      },
-                                                                      child: Row(
-                                                                        children: [
-                                                                          Image.asset("assets/images/Edit-Icon.png", height: 20.h, width: 20.w,),
-                                                                          SizedBox(width: 15.w,),
-                                                                          Text('Edit Menu Name', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                        ],
-                                                                      ),
+                                                                                    child: Text('Yes')),
+                                                                              ],
+                                                                            );
+                                                                          });
+                                                                    },
+                                                                    child: Row(
+                                                                      children: [
+                                                                        SizedBox(width: 10.w,),
+                                                                        Image.asset("assets/images/Delete-Icon.png", height: 20.h, width: 20.w,), SizedBox(width: 15.w,),
+                                                                        Text('Delete Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
+                                                                      ],
                                                                     ),
-                                                                    Divider(height: 5.h, color: kwhite2,),
-                                                                    TextButton(
-                                                                      //onPressed: () => Share.share(snapshot.data!.data[index].thumb.toString(),
-                                                                      //subject: snapshot.data!.data[index].prodName),
-                                                                      onPressed: () async{
-                                                                        showDialog(
-                                                                            context: context,
-                                                                            builder: (context) {
-                                                                              return AlertDialog(
-                                                                                title: Text('Delete Menu',
-                                                                                  style: TextStyle(fontSize: 20.sp),),
-                                                                                content: Text('Do you really want to delete this menu?',
-                                                                                  style: TextStyle(fontSize: 18.sp),),
-                                                                                actions: <Widget>[
-                                                                                  TextButton(
-                                                                                    onPressed: () {
-                                                                                      Navigator.pop(context); //close Dialog
-                                                                                    },
-                                                                                    child: Text('Cancel'),
-                                                                                  ),
-                                                                                  TextButton(
-                                                                                      onPressed: () {
-                                                                                        //action code for "Yes" button
-                                                                                        Navigator.of(context).pop();
-                                                                                        setState(() {
-                                                                                          futureDeleteData = fetchDeleteData(snapshot.data!.data[index].id);
-                                                                                          futureCreateMenu = fetchCreateMenu();
-                                                                                          Fluttertoast.showToast(
-                                                                                            msg: "Menu Deleted Successfully!", // your toast message
-                                                                                            toastLength: Toast.LENGTH_SHORT, // duration of the toast
-                                                                                            gravity: ToastGravity.BOTTOM, // toast gravity
-                                                                                            backgroundColor: Colors.black54, // background color of the toast
-                                                                                            textColor: Colors.white, // text color of the toast
-                                                                                          );
-                                                                                          futureCreateMenu = fetchCreateMenu();
-                                                                                        });
-                                                                                        Navigator.of(context).pop();
-                                                                                      },
-                                                                                      child: Text('Yes')),
-                                                                                ],
-                                                                              );
-                                                                            });
-                                                                      },
-                                                                      child: Row(
-                                                                        children: [
-                                                                          Image.asset("assets/images/Delete-Icon.png", height: 20.h, width: 20.w,),
-                                                                          SizedBox(width: 15.w,),
-                                                                          Text('Delete Menu', style: TextStyle(fontSize: 18.sp, color: kblue, fontWeight: FontWeight.bold),),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                    SizedBox(height: 20.h,),
-                                                                  ],
-                                                                ),
-                                                              ],
-                                                            ),
+                                                                  ),
+                                                                  SizedBox(height: 20.h,),
+                                                                ],
+                                                              ),
+                                                            ],
                                                           ),
                                                         )
                                                     );
@@ -445,7 +444,7 @@ class _MenuPageState extends State<MenuPage> {
                                             ],
                                           ),
                                           SizedBox(height: 10.h,),
-                                          Divider(height: 5.h, color: kwhite2,),
+                                          Divider(height: 5.h, color: Colors.black45,),
                                           SizedBox(height: 10.h,),
                                         ],
                                       ),
@@ -540,8 +539,8 @@ class _MenuPageState extends State<MenuPage> {
                           }
                           return const Center(
                             child: SizedBox(
-                              height: 50.0,
-                              width: 50.0,
+                              height: 24.0,
+                              width: 24.0,
                               child: CircularProgressIndicator(),
                             ),
                           );
@@ -714,7 +713,7 @@ class _MenuPageState extends State<MenuPage> {
           return AlertDialog(
             title: Text("New Menu", style: TextStyle(fontSize: 20.sp),),
             content: Form(
-                key: formKey,
+                key: formKey1,
                 child: Column(
                   mainAxisSize: MainAxisSize.min, //the dialog takes only size it needs
                   children: [
@@ -782,7 +781,7 @@ class _MenuPageState extends State<MenuPage> {
               TextButton(
                 child: const Text("Create"),
                 onPressed: (){
-                  if (formKey.currentState!.validate()) {
+                  if (formKey1.currentState!.validate()) {
                     setState(() {
                       futureCreateData = fetchCreateData(_controller.text);
                       futureCreateMenu = fetchCreateMenu();
@@ -818,7 +817,7 @@ class _MenuPageState extends State<MenuPage> {
             title: Text("Edit & Save Item",
               style: TextStyle(fontSize: 20.sp),),
             content: Form(
-                key: formKey,
+                key: formKey1,
                 child: Column(
                   mainAxisSize: MainAxisSize.min, //the dialog takes only size it needs
                   children: [
@@ -885,7 +884,7 @@ class _MenuPageState extends State<MenuPage> {
               TextButton(
                 child: const Text("Create"),
                 onPressed: (){
-                  if (formKey.currentState!.validate()) {
+                  if (formKey1.currentState!.validate()) {
                     setState(() {
                       futureUpdateData = fetchUpdateData(String, _controller.text);
                       futureCreateMenu = fetchCreateMenu();
