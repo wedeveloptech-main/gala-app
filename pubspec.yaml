@@ -72,7 +72,6 @@ dependencies:
   webview_flutter: ^2.3.0
   flutter_session_manager: ^1.0.2
   rating_dialog: ^2.0.0
-  smooth_star_rating: ^1.1.1
   flutter_rating_bar: ^4.0.1
   firebase_messaging: ^14.5.0
 
