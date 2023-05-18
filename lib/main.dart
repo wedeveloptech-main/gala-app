@@ -51,23 +51,7 @@ class MyApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: 'Gala Caterers',
             theme: ThemeData(
-              fontFamily: 'Roboto',
               primaryColor: Colors.blue,
-              /*primarySwatch: MaterialColor(
-                0xFF0D55A1,
-                <int, Color>{
-                  50: kblue.withOpacity(0.1),
-                  100: kblue.withOpacity(0.2),
-                  200: kblue.withOpacity(0.3),
-                  300: kblue.withOpacity(0.4),
-                  400: kblue.withOpacity(0.5),
-                  500: kblue.withOpacity(0.6),
-                  600: kblue.withOpacity(0.7),
-                  700: kblue.withOpacity(0.8),
-                  800: kblue.withOpacity(0.9),
-                  900: kblue.withOpacity(1),
-                },
-              ),*/
             ),
             builder: (context, child) {
               // initialize the navigator state before building the widget tree
