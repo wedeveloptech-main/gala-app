@@ -837,14 +837,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0+1"
-  smooth_star_rating:
-    dependency: "direct main"
-    description:
-      name: smooth_star_rating
-      sha256: "32e1b4bf14b702018e6ee32fabc6768be46a686136bfb248d980c4bd6fca72af"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
   source_span:
     dependency: transitive
     description:
