@@ -193,7 +193,7 @@ class _AllRecommendState extends State<AllRecommend> {
                                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2, // Number of columns
                                   crossAxisSpacing: spacing, // Horizontal spacing
-                                  mainAxisSpacing: spacing, // Vertical spacing
+                                  //mainAxisSpacing: spacing, // Vertical spacing
                                   childAspectRatio: childAspectRatio.toDouble(),
                                 ),
                                 itemBuilder: (BuildContext context, int index) {
